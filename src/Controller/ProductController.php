@@ -80,5 +80,6 @@ final class ProductController extends AbstractController
 
         // Redirect to homepage
         return $this->redirectToRoute('app_index');
+
     }
 }

@@ -1,19 +1,42 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Create Product{% endblock %}
+{% block title %}Add Product{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <div class="card mx-auto" style="max-width:720px">
-            <div class="card-body">
-                <h1 class="card-title">Create Product</h1>
+<div class="container py-5">
 
-                {% include 'product/_form.html.twig' with {'form': form, 'button_label': 'Create'} %}
+    <!-- Page header -->
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">Add a New Product</h1>
+        <p class="text-muted">
+            Create a product that will appear in your catalog.
+        </p>
+    </div>
 
-                <div class="mt-3 d-flex justify-content-between">
-                    <a href="{{ path('product_index') }}" class="btn btn-link">Back to products list</a>
+    <!-- Form card -->
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4">
+
+                    {% include 'product/_form.html.twig' with {
+                        form: form,
+                        button_label: 'Save Product'
+                    } %}
+
                 </div>
             </div>
+
         </div>
     </div>
+
+    <!-- Footer navigation -->
+    <div class="text-center mt-4">
+        <a href="{{ path('app_index') }}" class="text-decoration-none">
+            ← Back to homepage
+        </a>
+    </div>
+
+</div>
 {% endblock %}

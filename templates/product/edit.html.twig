@@ -3,17 +3,40 @@
 {% block title %}Edit Product{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <div class="card mx-auto" style="max-width:720px">
-            <div class="card-body">
-                <h1 class="card-title">Edit Product</h1>
+<div class="container py-5">
 
-                {% include 'product/_form.html.twig' with {'form': form, 'button_label': 'Update'} %}
+    <!-- Page header -->
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">Edit Product</h1>
+        <p class="text-muted">
+            Update the product details below and save your changes.
+        </p>
+    </div>
 
-                <div class="mt-3 d-flex justify-content-between">
-                    <a href="{{ path('product_index') }}" class="btn btn-link">Back to products list</a>
+    <!-- Form card -->
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4">
+
+                    {% include 'product/_form.html.twig' with {
+                        form: form,
+                        button_label: 'Update Product'
+                    } %}
+
                 </div>
             </div>
+
         </div>
     </div>
+
+    <!-- Footer navigation -->
+    <div class="text-center mt-4">
+        <a href="{{ path('app_index') }}" class="text-decoration-none">
+            ← Back to products list
+        </a>
+    </div>
+
+</div>
 {% endblock %}
