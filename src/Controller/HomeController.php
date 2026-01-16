@@ -24,4 +24,4 @@ final class HomeController extends AbstractController
             'categories' => $categories,
         ]);
     }
-}
+

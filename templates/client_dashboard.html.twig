@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}FoodMart - Free eCommerce Grocery Store{% endblock %}
+{% block title %}FoodMart - Client Dashboard{% endblock %}
 
 {% block stylesheets %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css">
@@ -68,18 +68,11 @@
       </div>
     </div>
 
-    {# Dashboard Navigation - Admin Dashboard #}
-    <div class="alert alert-warning d-flex justify-content-between align-items-center mb-0" role="alert">
-      <span><strong>Admin Dashboard</strong> - Full management access</span>
-      <a href="{{ path('app_client_dashboard') }}" class="btn btn-sm btn-info">Go to Client Dashboard</a>
-    </div>
-
-    {# Categories section (dynamic) #}
+    {# Categories section (dynamic) - Client View #}
     {% if categories is defined %}
     <section class="container mt-4">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="mb-0">Categories</h2>
-        <a href="{{ path('category_new') }}" class="btn btn-primary">Add category</a>
       </div>
 
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
@@ -89,15 +82,6 @@
               <div class="card-body d-flex flex-column">
                 <h5 class="card-title mb-1">{{ category.categoryName }}</h5>
                 <p class="card-text text-muted small mb-3">{{ category.description|default('No description provided.')|striptags }}</p>
-
-                <div class="mt-auto d-flex gap-2">
-                  <a href="{{ path('category_edit', {'id': category.id}) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
-
-                  <form method="post" action="{{ path('category_delete', {'id': category.id}) }}" onsubmit="return confirm('Delete this category?');" class="m-0">
-                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ category.id) }}">
-                    <button class="btn btn-sm btn-danger">Delete</button>
-                  </form>
-                </div>
               </div>
             </div>
           </div>
@@ -160,7 +144,7 @@
           <h4 class="d-flex justify-content-between align-items-center mb-3">
             <span class="text-primary">Search</span>
           </h4>
-          <form role="search" action="{{ path('app_index') }}" method="get" class="d-flex mt-3 gap-0">
+          <form role="search" action="{{ path('app_client_dashboard') }}" method="get" class="d-flex mt-3 gap-0">
             <input class="form-control rounded-start rounded-0 bg-light" type="email" placeholder="What are you looking for?" aria-label="What are you looking for?">
             <button class="btn btn-dark rounded-end rounded-0" type="submit">Search</button>
           </form>
@@ -174,7 +158,7 @@
           
           <div class="col-sm-4 col-lg-3 text-center text-sm-start">
             <div class="main-logo">
-              <a href="{{ path('app_index') }}">
+              <a href="{{ path('app_client_dashboard') }}">
                 <img src="{{ asset('images/logo.png') }}" alt="logo" class="img-fluid">
               </a>
             </div>
@@ -191,7 +175,7 @@
                 </select>
               </div>
               <div class="col-11 col-md-7">
-                <form id="search-form" class="text-center" action="{{ path('app_index') }}" method="post">
+                <form id="search-form" class="text-center" action="{{ path('app_client_dashboard') }}" method="post">
                   <input type="text" class="form-control border-0 bg-transparent" placeholder="Search for more than 20,000 products" />
                 </form>
               </div>
@@ -281,18 +265,18 @@
                     <li class="nav-item dropdown">
                       <a class="nav-link dropdown-toggle" role="button" id="pages" data-bs-toggle="dropdown" aria-expanded="false">Pages</a>
                       <ul class="dropdown-menu" aria-labelledby="pages">
-                        <li><a href="{{ path('app_index') }}" class="dropdown-item">About Us </a></li>
-                        <li><a href="{{ path('app_index') }}" class="dropdown-item">Shop </a></li>
-                        <li><a href="{{ path('app_index') }}" class="dropdown-item">Single Product </a></li>
-                        <li><a href="{{ path('app_index') }}" class="dropdown-item">Cart </a></li>
-                        <li><a href="{{ path('app_index') }}" class="dropdown-item">Checkout </a></li>
-                        <li><a href="{{ path('app_index') }}" class="dropdown-item">Blog </a></li>
-                        <li><a href="{{ path('app_index') }}" class="dropdown-item">Single Post </a></li>
-                        <li><a href="{{ path('app_index') }}" class="dropdown-item">Styles </a></li>
-                        <li><a href="{{ path('app_index') }}" class="dropdown-item">Contact </a></li>
-                        <li><a href="{{ path('app_index') }}" class="dropdown-item">Thank You </a></li>
-                        <li><a href="{{ path('app_index') }}" class="dropdown-item">My Account </a></li>
-                        <li><a href="{{ path('app_index') }}" class="dropdown-item">404 Error </a></li>
+                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">About Us </a></li>
+                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">Shop </a></li>
+                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">Single Product </a></li>
+                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">Cart </a></li>
+                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">Checkout </a></li>
+                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">Blog </a></li>
+                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">Single Post </a></li>
+                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">Styles </a></li>
+                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">Contact </a></li>
+                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">Thank You </a></li>
+                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">My Account </a></li>
+                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">404 Error </a></li>
                       </ul>
                     </li>
                     <li class="nav-item">
