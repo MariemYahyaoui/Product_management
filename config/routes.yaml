@@ -9,3 +9,7 @@
 
 controllers:
     resource: routing.controllers
+
+# Load route definitions in config/routes/*.yaml
+category:
+    resource: 'routes/category.yaml'
