@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Register - FoodMart{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4">Create an Account</h2>
+
+                    {% for flash_message in app.flashes('success') %}
+                        <div class="alert alert-success">{{ flash_message }}</div>
+                    {% endfor %}
+
+                    {{ form_start(registrationForm, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(registrationForm.firstName) }}
+                            {{ form_widget(registrationForm.firstName) }}
+                            {{ form_errors(registrationForm.firstName) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(registrationForm.lastName) }}
+                            {{ form_widget(registrationForm.lastName) }}
+                            {{ form_errors(registrationForm.lastName) }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.email) }}
+                        {{ form_widget(registrationForm.email) }}
+                        {{ form_errors(registrationForm.email) }}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(registrationForm.phoneNumber) }}
+                            {{ form_widget(registrationForm.phoneNumber) }}
+                            {{ form_errors(registrationForm.phoneNumber) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(registrationForm.gender) }}
+                            {{ form_widget(registrationForm.gender) }}
+                            {{ form_errors(registrationForm.gender) }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.dateOfBirth) }}
+                        {{ form_widget(registrationForm.dateOfBirth) }}
+                        {{ form_errors(registrationForm.dateOfBirth) }}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(registrationForm.plainPassword.first) }}
+                            {{ form_widget(registrationForm.plainPassword.first) }}
+                            {{ form_errors(registrationForm.plainPassword.first) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(registrationForm.plainPassword.second) }}
+                            {{ form_widget(registrationForm.plainPassword.second) }}
+                            {{ form_errors(registrationForm.plainPassword.second) }}
+                        </div>
+                    </div>
+
+                    {{ form_errors(registrationForm) }}
+
+                    <div class="d-grid mt-3">
+                        <button type="submit" class="btn btn-primary btn-lg">Sign Up</button>
+                    </div>
+
+                    {{ form_end(registrationForm) }}
+
+                    <p class="text-center mt-3 mb-0">
+                        Already have an account? <a href="{{ path('app_login') }}">Log In</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

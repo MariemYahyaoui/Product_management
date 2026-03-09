@@ -192,11 +192,7 @@
             </div>
 
             <ul class="d-flex justify-content-end list-unstyled m-0">
-              <li>
-                <a href="#" class="rounded-circle bg-light p-2 mx-1">
-                  <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="#user"></use></svg>
-                </a>
-              </li>
+
               <li>
                 <a href="#" class="rounded-circle bg-light p-2 mx-1">
                   <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="#heart"></use></svg>
@@ -397,4 +393,14 @@
 <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
 <script src="{{ asset('js/plugins.js') }}"></script>
 <script src="{{ asset('js/script.js') }}"></script>
+<script>
+  $(window).on('load', function() {
+    $('.preloader-wrapper').fadeOut();
+    $('body').removeClass('preloader-site');
+  });
+  setTimeout(function() {
+    $('.preloader-wrapper').fadeOut();
+    $('body').removeClass('preloader-site');
+  }, 1500);
+</script>
 {% endblock %}

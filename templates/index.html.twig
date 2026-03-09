@@ -68,44 +68,12 @@
       </div>
     </div>
 
-    {# Dashboard Navigation - Admin Dashboard #}
+    {# Dashboard Navigation - Only show for logged-in admins #}
+    {% if app.user and 'ROLE_ADMIN' in app.user.roles %}
     <div class="alert alert-warning d-flex justify-content-between align-items-center mb-0" role="alert">
       <span><strong>Admin Dashboard</strong> - Full management access</span>
       <a href="{{ path('app_client_dashboard') }}" class="btn btn-sm btn-info">Go to Client Dashboard</a>
     </div>
-
-    {# Categories section (dynamic) #}
-    {% if categories is defined %}
-    <section class="container mt-4">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="mb-0">Categories</h2>
-        <a href="{{ path('category_new') }}" class="btn btn-primary">Add category</a>
-      </div>
-
-      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-        {% for category in categories %}
-          <div class="col">
-            <div class="card h-100 shadow-sm">
-              <div class="card-body d-flex flex-column">
-                <h5 class="card-title mb-1">{{ category.categoryName }}</h5>
-                <p class="card-text text-muted small mb-3">{{ category.description|default('No description provided.')|striptags }}</p>
-
-                <div class="mt-auto d-flex gap-2">
-                  <a href="{{ path('category_edit', {'id': category.id}) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
-
-                  <form method="post" action="{{ path('category_delete', {'id': category.id}) }}" onsubmit="return confirm('Delete this category?');" class="m-0">
-                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ category.id) }}">
-                    <button class="btn btn-sm btn-danger">Delete</button>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
-        {% else %}
-          <div class="col-12"><div class="alert alert-info">No categories yet.</div></div>
-        {% endfor %}
-      </div>
-    </section>
     {% endif %}
 
     <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="offcanvasCart" aria-labelledby="My Cart">
@@ -207,12 +175,24 @@
               <h5 class="mb-0">+980-34984089</h5>
             </div>
 
-            <ul class="d-flex justify-content-end list-unstyled m-0">
-              <li>
-                <a href="#" class="rounded-circle bg-light p-2 mx-1">
-                  <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="#user"></use></svg>
-                </a>
+            <ul class="d-flex justify-content-end list-unstyled m-0 align-items-center">
+              {% if app.user %}
+              <li class="d-flex align-items-center">
+                <svg width="20" height="20" viewBox="0 0 24 24" class="me-1"><use xlink:href="#user"></use></svg>
+                <span class="fw-bold me-2">{{ app.user.firstName ~ ' ' ~ app.user.lastName }}</span>
               </li>
+              <li>
+                <a href="{{ path('app_logout') }}" class="btn btn-outline-dark btn-sm mx-1">Logout</a>
+              </li>
+              {% else %}
+              <li>
+                <a href="{{ path('app_login') }}" class="btn btn-outline-dark btn-sm mx-1">Login</a>
+              </li>
+              <li>
+                <a href="{{ path('app_register') }}" class="btn btn-primary btn-sm mx-1">Sign Up</a>
+              </li>
+              {% endif %}
+
               <li>
                 <a href="#" class="rounded-circle bg-light p-2 mx-1">
                   <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="#heart"></use></svg>

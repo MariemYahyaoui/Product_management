@@ -3,14 +3,18 @@
   "use strict";
 
   var initPreloader = function() {
-    $(document).ready(function($) {
-    var Body = $('body');
-        Body.addClass('preloader-site');
-    });
-    $(window).load(function() {
+    $('body').addClass('preloader-site');
+
+    function hidePreloader() {
         $('.preloader-wrapper').fadeOut();
         $('body').removeClass('preloader-site');
-    });
+    }
+
+    if (document.readyState === 'complete') {
+        hidePreloader();
+    } else {
+        $(window).on('load', hidePreloader);
+    }
   }
 
   // init Chocolat light box
