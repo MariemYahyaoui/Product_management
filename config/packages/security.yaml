@@ -31,8 +31,12 @@ security:
     access_control:
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/register, roles: PUBLIC_ACCESS }
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/product/new, roles: ROLE_ADMIN }
+        - { path: ^/product/\d+/edit, roles: ROLE_ADMIN }
+        - { path: ^/product/\d+$, methods: [POST], roles: ROLE_ADMIN }
+        - { path: ^/category/new, roles: ROLE_ADMIN }
+        - { path: ^/category/\d+/edit, roles: ROLE_ADMIN }
+        - { path: ^/category/\d+$, methods: [POST], roles: ROLE_ADMIN }
 
 when@test:
     security:

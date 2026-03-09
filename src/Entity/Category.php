@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\CategoryRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -19,6 +21,23 @@ class Category
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
+
+    /** @var Collection<int, \App\Entity\Product> */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Product::class, mappedBy: 'category')]
+    private Collection $products;
+
+    public function __construct()
+    {
+        $this->products = new ArrayCollection();
+    }
+
+    /**
+     * @return Collection<int, \App\Entity\Product>
+     */
+    public function getProducts(): Collection
+    {
+        return $this->products;
+    }
 
     public function getId(): ?int
     {
@@ -47,5 +66,10 @@ class Category
         $this->description = $description;
 
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->categoryName ?? '';
     }
 }

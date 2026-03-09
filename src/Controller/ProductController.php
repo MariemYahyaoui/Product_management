@@ -4,12 +4,15 @@ namespace App\Controller;
 
 use App\Entity\Product;
 use App\Form\ProductType;
+use App\Repository\CategoryRepository;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/product')]
 final class ProductController extends AbstractController
@@ -26,7 +29,8 @@ final class ProductController extends AbstractController
     }
 
     #[Route('/new', name: 'product_new', methods: ['GET','POST'])]
-    public function new(Request $request, EntityManagerInterface $em): Response
+    #[IsGranted('ROLE_ADMIN')]
+    public function new(Request $request, EntityManagerInterface $em, ProductRepository $productRepo, CategoryRepository $categoryRepo): Response
     {
         $product = new Product();
         $form = $this->createForm(ProductType::class, $product);
@@ -38,36 +42,80 @@ final class ProductController extends AbstractController
 
             $this->addFlash('success', 'Product created.');
 
-            // Redirect to homepage
             return $this->redirectToRoute('app_index');
         }
 
-        return $this->render('product/new.html.twig', [
-            'form' => $form->createView(),
+        return $this->render('index.html.twig', [
+            'products' => $productRepo->findAll(),
+            'categories' => $categoryRepo->findAll(),
+            'modalForm' => $form->createView(),
+            'modalTitle' => 'Create New Product',
+            'modalSubtitle' => 'Add a new product to your catalog',
         ]);
     }
 
     #[Route('/{id}/edit', name: 'product_edit', methods: ['GET','POST'])]
-    public function edit(Product $product, Request $request, EntityManagerInterface $em): Response
+    #[IsGranted('ROLE_ADMIN')]
+    public function edit(Product $product, Request $request, EntityManagerInterface $em, ProductRepository $productRepo, CategoryRepository $categoryRepo): Response
     {
-        $form = $this->createForm(ProductType::class, $product);
+        $form = $this->createForm(ProductType::class, $product, [
+            'action' => $this->generateUrl('product_edit', ['id' => $product->getId()]),
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
-            $this->addFlash('success', 'Product updated.');
 
-            // Redirect to homepage
+            if ($request->isXmlHttpRequest()) {
+                return $this->json(['success' => true, 'message' => 'Product updated.']);
+            }
+
+            $this->addFlash('success', 'Product updated.');
             return $this->redirectToRoute('app_index');
         }
 
-        return $this->render('product/edit.html.twig', [
-            'form' => $form->createView(),
-            'product' => $product,
+        if ($request->isXmlHttpRequest()) {
+            return $this->render('_edit_form.html.twig', [
+                'form' => $form->createView(),
+                'title' => 'Edit Product',
+                'subtitle' => 'Update product information',
+            ]);
+        }
+
+        return $this->render('index.html.twig', [
+            'products' => $productRepo->findAll(),
+            'categories' => $categoryRepo->findAll(),
+            'modalForm' => $form->createView(),
+            'modalTitle' => 'Edit Product',
+            'modalSubtitle' => 'Update product information',
         ]);
     }
 
+    #[Route('/search', name: 'product_search', methods: ['GET'])]
+    public function search(Request $request, ProductRepository $productRepo): JsonResponse
+    {
+        $query = trim($request->query->get('q', ''));
+        if ($query === '') {
+            return $this->json([]);
+        }
+
+        $products = $productRepo->searchByNameOrCategory($query);
+
+        $results = [];
+        foreach ($products as $product) {
+            $results[] = [
+                'id' => $product->getId(),
+                'name' => $product->getName(),
+                'price' => $product->getPrice(),
+                'category' => $product->getCategory() ? $product->getCategory()->getCategoryName() : null,
+            ];
+        }
+
+        return $this->json($results);
+    }
+
     #[Route('/{id}', name: 'product_delete', methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN')]
     public function delete(Product $product, Request $request, EntityManagerInterface $em): Response
     {
         $token = $request->request->get('_token');
