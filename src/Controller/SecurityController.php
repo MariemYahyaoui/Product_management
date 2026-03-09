@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Form\ProfileType;
 use App\Form\RegistrationType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -69,5 +70,37 @@ class SecurityController extends AbstractController
     public function logout(): void
     {
         // This method is intercepted by the logout key on the firewall.
+    }
+
+    #[Route('/profile', name: 'app_profile')]
+    public function profile(
+        Request $request,
+        UserPasswordHasherInterface $passwordHasher,
+        EntityManagerInterface $em,
+    ): Response {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $form = $this->createForm(ProfileType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $newPassword = $form->get('newPassword')->getData();
+            if ($newPassword) {
+                $user->setPassword($passwordHasher->hashPassword($user, $newPassword));
+            }
+
+            $em->flush();
+
+            $this->addFlash('success', 'Profile updated successfully!');
+
+            return $this->redirectToRoute('app_profile');
+        }
+
+        return $this->render('security/profile.html.twig', [
+            'profileForm' => $form->createView(),
+        ]);
     }
 }

@@ -1,0 +1,90 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Profile - FoodMart{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4">Edit Profile</h2>
+
+                    {% for flash_message in app.flashes('success') %}
+                        <div class="alert alert-success">{{ flash_message }}</div>
+                    {% endfor %}
+
+                    {{ form_start(profileForm, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(profileForm.firstName) }}
+                            {{ form_widget(profileForm.firstName) }}
+                            {{ form_errors(profileForm.firstName) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(profileForm.lastName) }}
+                            {{ form_widget(profileForm.lastName) }}
+                            {{ form_errors(profileForm.lastName) }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(profileForm.email) }}
+                        {{ form_widget(profileForm.email) }}
+                        {{ form_errors(profileForm.email) }}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(profileForm.phoneNumber) }}
+                            {{ form_widget(profileForm.phoneNumber) }}
+                            {{ form_errors(profileForm.phoneNumber) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(profileForm.gender) }}
+                            {{ form_widget(profileForm.gender) }}
+                            {{ form_errors(profileForm.gender) }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(profileForm.dateOfBirth) }}
+                        {{ form_widget(profileForm.dateOfBirth) }}
+                        {{ form_errors(profileForm.dateOfBirth) }}
+                    </div>
+
+                    <hr class="my-4">
+                    <h5 class="mb-3">Change Password</h5>
+                    <p class="text-muted small">Leave blank to keep your current password.</p>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(profileForm.newPassword.first) }}
+                            {{ form_widget(profileForm.newPassword.first) }}
+                            {{ form_errors(profileForm.newPassword.first) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(profileForm.newPassword.second) }}
+                            {{ form_widget(profileForm.newPassword.second) }}
+                            {{ form_errors(profileForm.newPassword.second) }}
+                        </div>
+                    </div>
+
+                    {{ form_errors(profileForm) }}
+
+                    <div class="d-grid mt-3">
+                        <button type="submit" class="btn btn-primary btn-lg">Save Changes</button>
+                    </div>
+
+                    {{ form_end(profileForm) }}
+
+                    <p class="text-center mt-3 mb-0">
+                        <a href="{{ path('app_index') }}">&larr; Back to Home</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

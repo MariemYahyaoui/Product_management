@@ -178,8 +178,10 @@
             <ul class="d-flex justify-content-end list-unstyled m-0 align-items-center">
               {% if app.user %}
               <li class="d-flex align-items-center">
-                <svg width="20" height="20" viewBox="0 0 24 24" class="me-1"><use xlink:href="#user"></use></svg>
-                <span class="fw-bold me-2">{{ app.user.firstName ~ ' ' ~ app.user.lastName }}</span>
+                <a href="{{ path('app_profile') }}" class="text-decoration-none text-dark d-flex align-items-center">
+                  <svg width="20" height="20" viewBox="0 0 24 24" class="me-1"><use xlink:href="#user"></use></svg>
+                  <span class="fw-bold me-2">{{ app.user.firstName ~ ' ' ~ app.user.lastName }}</span>
+                </a>
               </li>
               <li>
                 <a href="{{ path('app_logout') }}" class="btn btn-outline-dark btn-sm mx-1">Logout</a>
