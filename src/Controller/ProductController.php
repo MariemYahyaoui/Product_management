@@ -18,13 +18,19 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class ProductController extends AbstractController
 {
     #[Route('/', name: 'product_index', methods: ['GET'])]
-    public function index(ProductRepository $repository): Response
+    public function index(Request $request, ProductRepository $repository): Response
     {
-        $products = $repository->findAll();
+        $search = $request->query->get('search');
+        if ($search) {
+            $products = $repository->searchByNameOrCategory($search);
+        } else {
+            $products = $repository->findAll();
+        }
 
         // Optional: you can render a dedicated product page or homepage
         return $this->render('index.html.twig', [
             'products' => $products,
+            'search' => $search,
         ]);
     }
 
