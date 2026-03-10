@@ -73,7 +73,7 @@ final class CategoryController extends AbstractController
         }
 
         if ($request->isXmlHttpRequest()) {
-            return $this->render('_edit_form.html.twig', [
+            return $this->render('_category_edit_form.html.twig', [
                 'form' => $form->createView(),
                 'title' => 'Edit Category',
                 'subtitle' => 'Update category information',

@@ -35,15 +35,6 @@
         from { opacity: 0; transform: translateY(40px); }
         to { opacity: 1; transform: translateY(0); }
     }
-    .list-group-item {
-        padding: 0.5rem 1rem !important;
-    }
-    .list-group-item h6 {
-        margin: 0.25rem 0 !important;
-    }
-    .list-group-item small {
-        margin: 0 !important;
-    }
 </style>
 {% endblock %}
 
@@ -104,44 +95,14 @@
       </div>
     </div>
 
-    {# Dashboard Navigation - Show appropriate message based on role #}
+    {# Dashboard Navigation - Only show for logged-in admins #}
     {% if app.user and 'ROLE_ADMIN' in app.user.roles %}
     <div class="alert alert-warning d-flex justify-content-between align-items-center mb-0" role="alert">
       <span><strong>Admin Dashboard</strong> - Full management access</span>
-      <a href="{{ path('app_client_dashboard') }}" class="btn btn-sm btn-info">Go to Client Dashboard</a>
-    </div>
-    {% elseif app.user %}
-    <div class="alert alert-info d-flex justify-content-between align-items-center mb-0" role="alert">
-      <span><strong>Shopping Dashboard</strong> - Browse & add products to cart</span>
-      {% if 'ROLE_ADMIN' not in app.user.roles %}
-      <a href="{{ path('app_index') }}" class="btn btn-sm btn-primary">Refresh</a>
-      {% endif %}
+      <a href="{{ path('app_user') }}" class="btn btn-sm btn-info">Go to Client Dashboard</a>
     </div>
     {% endif %}
 
-    {# Cart Offcanvas - Only for logged-in non-admins #}
-    {% if app.user and 'ROLE_ADMIN' not in app.user.roles %}
-    <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="offcanvasCart" aria-labelledby="My Cart">
-      <div class="offcanvas-header justify-content-center">
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-      <div class="offcanvas-body">
-        <div class="order-md-last">
-          <h4 class="d-flex justify-content-between align-items-center mb-3">
-            <span class="text-primary">Your cart</span>
-            <span class="badge bg-primary rounded-pill" id="cart-count">0</span>
-          </h4>
-          <ul class="list-group mb-3" id="cart-items-list">
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Total (USD)</span>
-              <strong id="cart-total-offcanvas">$0.00</strong>
-            </li>
-          </ul>
-          <button class="w-100 btn btn-primary btn-lg" type="button" onclick="openCheckoutModal()">Continue to checkout</button>
-        </div>
-      </div>
-    </div>
-    {% elseif app.user and 'ROLE_ADMIN' in app.user.roles %}
     <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="offcanvasCart" aria-labelledby="My Cart">
       <div class="offcanvas-header justify-content-center">
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -184,7 +145,6 @@
         </div>
       </div>
     </div>
-    {% endif %}
     
     <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="offcanvasSearch" aria-labelledby="Search">
       <div class="offcanvas-header justify-content-center">
@@ -195,10 +155,10 @@
           <h4 class="d-flex justify-content-between align-items-center mb-3">
             <span class="text-primary">Search</span>
           </h4>
-          <div class="d-flex mt-3 gap-0">
-            <input class="form-control rounded-start rounded-0 bg-light" type="text" id="offcanvas-search-input" placeholder="What are you looking for?">
-            <button class="btn btn-dark rounded-end rounded-0" type="button" id="offcanvas-search-btn">Search</button>
-          </div>
+          <form role="search" action="{{ path('app_index') }}" method="get" class="d-flex mt-3 gap-0">
+            <input class="form-control rounded-start rounded-0 bg-light" type="text" placeholder="What are you looking for?" aria-label="What are you looking for?">
+            <button class="btn btn-dark rounded-end rounded-0" type="submit">Search</button>
+          </form>
         </div>
       </div>
     </div>
@@ -218,42 +178,29 @@
           <div class="col-sm-6 offset-sm-2 offset-md-0 col-lg-5 d-none d-lg-block">
             <div class="search-bar row bg-light p-2 my-2 rounded-4">
               <div class="col-md-4 d-none d-md-block">
-                  <select class="form-select border-0 bg-transparent" id="header-category-filter">
-                    <option value="">All Categories</option>
-                    {% if categories is defined %}
-                      {% for category in categories %}
-                        <option value="{{ category.categoryName|lower }}">{{ category.categoryName }}</option>
-                      {% endfor %}
-                    {% endif %}
-                  </select>
+                <select class="form-select border-0 bg-transparent">
+                  <option>All Categories</option>
+                  <option>Groceries</option>
+                  <option>Drinks</option>
+                  <option>Chocolates</option>
+                </select>
               </div>
               <div class="col-11 col-md-7">
-                <input type="text" id="header-search-input" class="form-control border-0 bg-transparent" placeholder="Search for more products" />
+                <form id="search-form" class="text-center" action="{{ path('app_index') }}" method="post">
+                  <input type="text" class="form-control border-0 bg-transparent" placeholder="Search for more than 20,000 products" />
+                </form>
               </div>
               <div class="col-1">
-                <button type="button" class="btn btn-link p-0 d-flex align-items-center justify-content-center" onclick="filterProducts()" title="Search">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M21.71 20.29L18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 7-7a7 7 0 0 1-7 7Z"/></svg>
-                </button>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M21.71 20.29L18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 7-7a7 7 0 0 1-7 7Z"/></svg>
               </div>
             </div>
           </div>
           
           <div class="col-sm-8 col-lg-4 d-flex justify-content-end gap-5 align-items-center mt-4 mt-sm-0 justify-content-center justify-content-sm-end">
-          
-
             <div class="support-box text-end d-none d-xl-block">
               <span class="fs-6 text-muted">For Support?</span>
               <h5 class="mb-0">+980-34984089</h5>
             </div>
-
-            {% if app.user and 'ROLE_ADMIN' not in app.user.roles %}
-            <div class="cart text-end d-none d-lg-block">
-              <button class="border-0 bg-transparent d-flex flex-column gap-2 lh-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-controls="offcanvasCart">
-                <span class="fs-6 text-muted">Your Cart</span>
-                <span class="cart-total fs-5 fw-bold" id="cart-total-header">$0.00</span>
-              </button>
-            </div>
-            {% endif %}
 
             <ul class="d-flex justify-content-end list-unstyled m-0 align-items-center">
               {% if app.user %}
@@ -275,19 +222,29 @@
               </li>
               {% endif %}
 
-              {% if app.user and 'ROLE_ADMIN' not in app.user.roles %}
+              <li>
+                <a href="#" class="rounded-circle bg-light p-2 mx-1">
+                  <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="#heart"></use></svg>
+                </a>
+              </li>
               <li class="d-lg-none">
                 <a href="#" class="rounded-circle bg-light p-2 mx-1" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-controls="offcanvasCart">
                   <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="#cart"></use></svg>
                 </a>
               </li>
-              {% endif %}
               <li class="d-lg-none">
                 <a href="#" class="rounded-circle bg-light p-2 mx-1" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSearch" aria-controls="offcanvasSearch">
                   <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="#search"></use></svg>
                 </a>
               </li>
             </ul>
+
+            <div class="cart text-end d-none d-lg-block dropdown">
+              <button class="border-0 bg-transparent d-flex flex-column gap-2 lh-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-controls="offcanvasCart">
+                <span class="fs-6 text-muted dropdown-toggle">Your Cart</span>
+                <span class="cart-total fs-5 fw-bold">$1290.00</span>
+              </button>
+            </div>
           </div>
 
         </div>
@@ -310,25 +267,31 @@
 
                 <div class="offcanvas-body">
               
-                  <select class="filter-categories border-0 mb-0 me-5" id="category-filter">
-                    <option value="">Shop by Departments</option>
-                    {% if categories is defined %}
-                      {% for category in categories %}
-                        <option value="{{ category.categoryName|lower }}">{{ category.categoryName }}</option>
-                      {% endfor %}
-                    {% endif %}
+                  <select class="filter-categories border-0 mb-0 me-5">
+                    <option>Shop by Departments</option>
+                    <option>Groceries</option>
+                    <option>Drinks</option>
+                    <option>Chocolates</option>
                   </select>
               
                   <ul class="navbar-nav justify-content-end menu-list list-unstyled d-flex gap-md-3 mb-0 align-items-center">
-                    
+                    <li class="nav-item">
+                      <div class="input-group input-group-sm" style="width:250px">
+                        <input type="text" id="product-filter-input" class="form-control" placeholder="Filter products..." autocomplete="off">
+                        <span class="input-group-text bg-transparent"><svg width="16" height="16" viewBox="0 0 24 24"><use xlink:href="#search"></use></svg></span>
+                      </div>
+                    </li>
                     <li class="nav-item active">
-                      <a href="#about" class="nav-link">About Us</a>
+                      <a href="#women" class="nav-link">Women</a>
                     </li>
                     <li class="nav-item dropdown">
-                      <a href="#shop" class="nav-link">Shop</a>
+                      <a href="#men" class="nav-link">Men</a>
                     </li>
                     <li class="nav-item">
-                      <a href="#myAccount" class="nav-link">My Account</a>
+                      <a href="#kids" class="nav-link">Kids</a>
+                    </li>
+                    <li class="nav-item">
+                      <a href="#accessories" class="nav-link">Accessories</a>
                     </li>
                     <li class="nav-item dropdown">
                       <a class="nav-link dropdown-toggle" role="button" id="pages" data-bs-toggle="dropdown" aria-expanded="false">Pages</a>
@@ -347,8 +310,17 @@
                         <li><a href="{{ path('app_index') }}" class="dropdown-item">404 Error </a></li>
                       </ul>
                     </li>
-                    
+                    <li class="nav-item">
+                      <a href="#brand" class="nav-link">Brand</a>
+                    </li>
+                    <li class="nav-item">
+                      <a href="#sale" class="nav-link">Sale</a>
+                    </li>
+                    <li class="nav-item">
+                      <a href="#blog" class="nav-link">Blog</a>
+                    </li>
                   </ul>
+                
                 </div>
 
               </div>
@@ -358,7 +330,6 @@
     </header>
     
 <section class="py-3" style="background-image: url('{{ asset('images/background-pattern.jpg') }}');background-repeat: no-repeat;background-size: cover;">
-  {% if not is_granted('ROLE_ADMIN') %}
   <div class="container-fluid">
     <div class="row">
       <div class="col-md-12">
@@ -449,10 +420,9 @@
     </div>
     
   </div>
-  {% endif %}
   
 </section>
-<section style="background:url('{{ asset('images/background-pattern.jpg') }}') no-repeat;background-size: cover;">
+<section>
 <div class="container-fluid">
   {# Flash messages #}
   <div class="row mb-3">
@@ -471,72 +441,30 @@
   <div class="row mb-3">
       <div class="col-12 d-flex justify-content-between align-items-center mb-3">
           <h4>Products</h4>
-          <div class="d-flex gap-2">
-              {% if is_granted('ROLE_ADMIN') %}
-              <select class="form-select" id="product-category-filter" style="max-width: 200px;">
-                  <option value="">All Categories</option>
-                  {% if categories is defined %}
-                      {% for category in categories %}
-                      <option value="{{ category.categoryName|lower }}">{{ category.categoryName }}</option>
-                      {% endfor %}
-                  {% endif %}
-              </select>
-              <button type="button" class="btn btn-primary" onclick="document.getElementById('productModal').style.display='flex'">Add Product</button>
-              {% else %}
-              <select class="form-select" id="product-category-filter" style="max-width: 200px;">
-                  <option value="">All Categories</option>
-                  {% if categories is defined %}
-                      {% for category in categories %}
-                      <option value="{{ category.categoryName|lower }}">{{ category.categoryName }}</option>
-                      {% endfor %}
-                  {% endif %}
-              </select>
-              {% endif %}
-          </div>
+          {% if is_granted('ROLE_ADMIN') %}
+          <button type="button" class="btn btn-sm btn-primary" onclick="document.getElementById('productModal').style.display='flex'">Add Product</button>
+          {% endif %}
       </div>
 
       {% if products is defined and products|length > 0 %}
           {% for product in products %}
               <div class="col-md-4 mb-3 product-card" data-product-name="{{ product.name|lower }}" data-category-name="{{ product.category ? product.category.categoryName|lower : '' }}">
-                  <div class="card h-100 shadow-sm" style="position: relative;">
-                      {% if not is_granted('ROLE_ADMIN') %}
-                      <div style="position: absolute; top: 10px; right: 10px; z-index: 10;">
-                          {% if product.quantity > 0 %}
-                          <span class="badge bg-success">In Stock</span>
-                          {% else %}
-                          <span class="badge bg-danger">Out of Stock</span>
-                          {% endif %}
-                      </div>
-                      {% endif %}
+                  <div class="card h-100 shadow-sm">
                       <div class="card-body d-flex flex-column">
                           <h5 class="card-title">{{ product.name }}</h5>
                           <p class="card-text">{{ product.description|length > 100 ? product.description|slice(0, 100) ~ '...' : product.description }}</p>
                           <p class="card-text"><strong>Price:</strong> ${{ product.price }}</p>
-                          
-                          {% if is_granted('ROLE_ADMIN') %}
-                          <p class="card-text"><strong>In Stock:</strong> {{ product.quantity }}</p>
-                          {% endif %}
-                          
                           {% if product.category %}
                           <p class="card-text"><small class="text-muted">Category: {{ product.category.categoryName }}</small></p>
                           {% endif %}
-                          
                           {% if is_granted('ROLE_ADMIN') %}
-                          <div class="mt-auto d-flex gap-2">
-                              <button type="button" class="btn btn-sm btn-warning" onclick="openEditModal('{{ path('product_edit', {id: product.id}) }}')" >Edit</button>
+                          <div class="mt-auto d-flex justify-content-between">
+                              <button type="button" class="btn btn-sm btn-warning" onclick="openEditModal('{{ path('product_edit', {id: product.id}) }}')">Edit</button>
 
-                              <form action="{{ path('product_delete', {id: product.id}) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this product?');" class="m-0">
+                              <form action="{{ path('product_delete', {id: product.id}) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this product?');">
                                   <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ product.id) }}">
                                   <button class="btn btn-sm btn-danger" type="submit">Delete</button>
                               </form>
-                          </div>
-                          {% else %}
-                          <div class="mt-auto gap-2">
-                              {% if product.quantity > 0 %}
-                              <button class="btn btn-sm btn-primary w-100" onclick="addToCart({{ product.id }}, '{{ product.name|e('js') }}', {{ product.price }})">Add to Cart</button>
-                              {% else %}
-                              <button class="btn btn-sm btn-secondary w-100" disabled>Out of Stock</button>
-                              {% endif %}
                           </div>
                           {% endif %}
                       </div>
@@ -555,36 +483,34 @@
 
 {# Categories section - Admin only #}
     {% if is_granted('ROLE_ADMIN') and categories is defined %}
-    <section style="background:url('{{ asset('images/background-pattern.jpg') }}') no-repeat;background-size: cover;padding: 40px 0;">
-      <div class="container-fluid">
-        <div class="row mb-3">
-          <div class="col-12 d-flex justify-content-between align-items-center mb-3">
-            <h2 class="mb-0">Categories</h2>
-            <button type="button" class="btn btn-primary" onclick="document.getElementById('categoryModal').style.display='flex'">Add category</button>
-          </div>
+    <section class="container-fluid mt-4">
+      <div class="row mb-3">
+        <div class="col-12 d-flex justify-content-between align-items-center mb-3">
+          <h2 class="mb-0">Categories</h2>
+          <button type="button" class="btn btn-primary" onclick="document.getElementById('categoryModal').style.display='flex'">Add category</button>
+        </div>
 
-          {% for category in categories %}
-            <div class="col-md-4 mb-3 category-card" data-category-name="{{ category.categoryName|lower }}">
-              <div class="card h-100 shadow-sm">
-                <div class="card-body d-flex flex-column">
-                  <h5 class="card-title mb-1">{{ category.categoryName }}</h5>
-                  <p class="card-text text-muted small mb-3">{{ category.description|default('No description provided.')|striptags }}</p>
+        {% for category in categories %}
+          <div class="col-md-4 mb-3 category-card" data-category-name="{{ category.categoryName|lower }}">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title mb-1">{{ category.categoryName }}</h5>
+                <p class="card-text text-muted small mb-3">{{ category.description|default('No description provided.')|striptags }}</p>
 
-                  <div class="mt-auto d-flex gap-2">
-                    <button type="button" class="btn btn-sm btn-warning" onclick="openEditCategoryModal({{ category.id }})">Edit</button>
+                <div class="mt-auto d-flex gap-2">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="openEditModal('{{ path('category_edit', {'id': category.id}) }}')">Edit</button>
 
-                    <form method="post" action="{{ path('category_delete', {'id': category.id}) }}" onsubmit="return confirm('Delete this category?');" class="m-0">
-                      <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ category.id) }}">
-                      <button class="btn btn-sm btn-danger">Delete</button>
-                    </form>
-                  </div>
+                  <form method="post" action="{{ path('category_delete', {'id': category.id}) }}" onsubmit="return confirm('Delete this category?');" class="m-0">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ category.id) }}">
+                    <button class="btn btn-sm btn-danger">Delete</button>
+                  </form>
                 </div>
               </div>
             </div>
-          {% else %}
-            <div class="col-12"><div class="alert alert-info">No categories yet.</div></div>
-          {% endfor %}
-        </div>
+          </div>
+        {% else %}
+          <div class="col-12"><div class="alert alert-info">No categories yet.</div></div>
+        {% endfor %}
       </div>
     </section>
     {% endif %}
@@ -641,18 +567,18 @@
     {% if categoryForm is defined %}
     <div class="modal-overlay" id="categoryModal" style="display:none">
         <div class="modal-window">
-            <div class="p-4 border-bottom d-flex justify-content-between align-items-center" id="categoryModalHeader">
+            <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
                 <div>
                     <h4 class="fw-bold mb-1">Create New Category</h4>
                     <p class="text-muted small mb-0">Add a new product category</p>
                 </div>
-                <button type="button" class="btn-close" aria-label="Close" onclick="closeCategoryModal()"></button>
+                <button type="button" class="btn-close" aria-label="Close" onclick="document.getElementById('categoryModal').style.display='none'"></button>
             </div>
-            <div class="p-4" id="categoryModalBody">
-                {{ form_start(categoryForm, { 'attr': { 'class': 'needs-validation category-form', 'novalidate': 'novalidate', 'id': 'categoryFormElement' } }) }}
+            <div class="p-4">
+                {{ form_start(categoryForm, { 'attr': { 'class': 'needs-validation', 'novalidate': 'novalidate' } }) }}
                     {{ form_widget(categoryForm) }}
                     <div class="d-flex gap-3 justify-content-end mt-4 pt-3 border-top">
-                        <button type="button" class="btn btn-outline-secondary rounded-3 px-4" onclick="closeCategoryModal()">Cancel</button>
+                        <button type="button" class="btn btn-outline-secondary rounded-3 px-4" onclick="document.getElementById('categoryModal').style.display='none'">Cancel</button>
                         <button type="submit" class="btn btn-primary rounded-3 px-5">Save</button>
                     </div>
                 {{ form_end(categoryForm) }}
@@ -661,43 +587,10 @@
     </div>
     {% endif %}
 
-    {# Edit modal for categories (loaded dynamically via AJAX) #}
-    <div class="modal-overlay" id="categoryEditModal" style="display:none">
-        <div class="modal-window" id="categoryEditModalContent">
-            <div class="p-4 text-center">Loading...</div>
-        </div>
-    </div>
-
     {# Edit modal (loaded dynamically via AJAX) #}
     <div class="modal-overlay" id="editModal" style="display:none">
         <div class="modal-window" id="editModalContent">
             <div class="p-4 text-center">Loading...</div>
-        </div>
-    </div>
-
-    {# Checkout Modal #}
-    <div class="modal-overlay" id="checkoutModal" style="display:none">
-        <div class="modal-window">
-            <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
-                <div>
-                    <h4 class="fw-bold mb-1">Order Confirmation</h4>
-                    <p class="text-muted small mb-0">Review your order before checkout</p>
-                </div>
-                <button type="button" class="btn-close" onclick="closeCheckoutModal()"></button>
-            </div>
-            <div class="p-4">
-                <h5 class="mb-3">Order Summary</h5>
-                <ul class="list-group mb-4" id="checkout-items-list">
-                </ul>
-                <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded">
-                    <h5 class="mb-0">Total Amount:</h5>
-                    <h5 class="mb-0 text-primary" id="checkout-total">$0.00</h5>
-                </div>
-                <div class="d-flex gap-3 justify-content-end">
-                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" onclick="closeCheckoutModal()">Back to Cart</button>
-                    <button type="button" class="btn btn-success rounded-3 px-5" onclick="placeOrder()">Place Order</button>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -709,44 +602,25 @@
 <script src="{{ asset('js/plugins.js') }}"></script>
 <script src="{{ asset('js/script.js') }}"></script>
 <script>
-function filterProducts() {
-  var categoryVal = (document.getElementById('product-category-filter') || {}).value || '';
-  var searchVal = (document.getElementById('product-filter-input') || document.getElementById('header-search-input') || {}).value || '';
-  searchVal = searchVal.trim().toLowerCase();
-
-  document.querySelectorAll('.product-card').forEach(function(card) {
-    var name = card.getAttribute('data-product-name') || '';
-    var cat  = card.getAttribute('data-category-name') || '';
-    var matchCat    = !categoryVal || cat === categoryVal.toLowerCase();
-    var matchSearch = !searchVal  || name.indexOf(searchVal) !== -1 || cat.indexOf(searchVal) !== -1;
-    card.style.display = (matchCat && matchSearch) ? '' : 'none';
-  });
-
-  document.querySelectorAll('.category-card').forEach(function(card) {
-    var cat = card.getAttribute('data-category-name') || '';
-    card.style.display = (!searchVal || cat.indexOf(searchVal) !== -1) ? '' : 'none';
-  });
-}
-
 (function() {
-  // All filter inputs share the same filterProducts function
-  ['product-category-filter', 'category-filter', 'header-category-filter'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('change', function() {
-        // Sync all category dropdowns to same value
-        ['product-category-filter', 'category-filter', 'header-category-filter'].forEach(function(syncId) {
-          var s = document.getElementById(syncId);
-          if (s) s.value = el.value;
-        });
-        filterProducts();
-      });
-    }
-  });
+  var filterInput = document.getElementById('product-filter-input');
+  if (!filterInput) return;
 
-  ['product-filter-input', 'header-search-input'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.addEventListener('input', filterProducts);
+  filterInput.addEventListener('input', function() {
+    var query = this.value.trim().toLowerCase();
+    var productCards = document.querySelectorAll('.product-card');
+    var categoryCards = document.querySelectorAll('.category-card');
+
+    productCards.forEach(function(card) {
+      var name = card.getAttribute('data-product-name') || '';
+      var cat = card.getAttribute('data-category-name') || '';
+      card.style.display = (!query || name.indexOf(query) !== -1 || cat.indexOf(query) !== -1) ? '' : 'none';
+    });
+
+    categoryCards.forEach(function(card) {
+      var cat = card.getAttribute('data-category-name') || '';
+      card.style.display = (!query || cat.indexOf(query) !== -1) ? '' : 'none';
+    });
   });
 })();
 
@@ -798,269 +672,5 @@ function closeEditModal() {
   document.getElementById('editModal').style.display = 'none';
   document.getElementById('editModalContent').innerHTML = '';
 }
-
-function closeCategoryModal() {
-  document.getElementById('categoryModal').style.display = 'none';
-  // Reset to the original header for next add
-  document.getElementById('categoryModalHeader').innerHTML = '<div><h4 class="fw-bold mb-1">Create New Category</h4><p class="text-muted small mb-0">Add a new product category</p></div><button type="button" class="btn-close" aria-label="Close" onclick="closeCategoryModal()"></button>';
-}
-
-function openEditCategoryModal(categoryId) {
-  var modal = document.getElementById('categoryEditModal');
-  var content = document.getElementById('categoryEditModalContent');
-  content.innerHTML = '<div class="p-4 text-center">Loading...</div>';
-  modal.style.display = 'flex';
-
-  fetch('{{ path("category_edit", {"id": "__ID__"}) }}'.replace('__ID__', categoryId), { 
-    headers: { 'X-Requested-With': 'XMLHttpRequest' } 
-  })
-    .then(function(r) { return r.text(); })
-    .then(function(html) {
-      content.innerHTML = html;
-      bindCategoryEditForm();
-    })
-    .catch(function(e) {
-      content.innerHTML = '<div class="p-4"><div class="alert alert-danger">Error loading form. Please try again.</div><button type="button" class="btn btn-secondary" onclick="closeCategoryEditModal()">Close</button></div>';
-    });
-}
-
-function closeCategoryEditModal() {
-  document.getElementById('categoryEditModal').style.display = 'none';
-  document.getElementById('categoryEditModalContent').innerHTML = '';
-}
-
-function bindCategoryEditForm() {
-  var content = document.getElementById('categoryEditModalContent');
-  var form = content.querySelector('.category-edit-form');
-  if (!form) return;
-
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    var formData = new FormData(form);
-    fetch(form.action, {
-      method: 'POST',
-      headers: { 'X-Requested-With': 'XMLHttpRequest' },
-      body: formData
-    }).then(function(r) {
-      if (r.ok) {
-        closeCategoryEditModal();
-        location.reload();
-      } else {
-        return r.text().then(function(html) {
-          content.innerHTML = html;
-          bindCategoryEditForm();
-        });
-      }
-    });
-  });
-}
-
-// ============================================
-// CART AND PRODUCT FILTERING FOR NON-ADMIN USERS
-// ============================================
-var cart = [];
-
-function updateCartDisplay() {
-  var total = cart.reduce(function(sum, item) { return sum + item.price * item.quantity; }, 0);
-  var count = cart.reduce(function(sum, item) { return sum + item.quantity; }, 0);
-
-  var badge = document.getElementById('cart-count');
-  if (badge) badge.textContent = count;
-
-  var headerTotal = document.getElementById('cart-total-header');
-  if (headerTotal) headerTotal.textContent = '$' + total.toFixed(2);
-
-  var offcanvasTotal = document.getElementById('cart-total-offcanvas');
-  if (offcanvasTotal) offcanvasTotal.textContent = '$' + total.toFixed(2);
-
-  var cartList = document.getElementById('cart-items-list');
-  if (cartList) {
-    cartList.innerHTML = '';
-    cart.forEach(function(item) {
-      var li = document.createElement('li');
-      li.className = 'list-group-item';
-      li.innerHTML = '<div class="d-flex justify-content-between align-items-start mb-2">' +
-                     '<div><h6 class="my-0">' + item.name + '</h6><small class="text-body-secondary">$' + item.price.toFixed(2) + ' each</small></div>' +
-                     '<button type="button" class="btn btn-sm btn-close" onclick="removeFromCart(' + item.id + ')"></button>' +
-                     '</div>' +
-                     '<div class="d-flex justify-content-between align-items-center">' +
-                     '<div class="btn-group" role="group">' +
-                     '<button type="button" class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(' + item.id + ', -1)">-</button>' +
-                     '<span class="btn btn-sm btn-light" disabled>' + item.quantity + '</span>' +
-                     '<button type="button" class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(' + item.id + ', 1)">+</button>' +
-                     '</div>' +
-                     '<span class="text-body-secondary fw-bold">$' + (item.price * item.quantity).toFixed(2) + '</span>' +
-                     '</div>';
-      cartList.appendChild(li);
-    });
-    var totalLi = document.createElement('li');
-    totalLi.className = 'list-group-item d-flex justify-content-between';
-    totalLi.innerHTML = '<span>Total (USD)</span><strong>$' + total.toFixed(2) + '</strong>';
-    cartList.appendChild(totalLi);
-  }
-}
-
-function removeFromCart(productId) {
-  cart = cart.filter(function(item) { return item.id !== productId; });
-  updateCartDisplay();
-}
-
-function updateQuantity(productId, change) {
-  var item = cart.find(function(i) { return i.id === productId; });
-  if (item) {
-    item.quantity += change;
-    if (item.quantity <= 0) {
-      removeFromCart(productId);
-    } else {
-      updateCartDisplay();
-    }
-  }
-}
-
-function addToCart(productId, productName, productPrice) {
-  var existing = cart.find(function(i) { return i.id === productId; });
-  if (existing) {
-    existing.quantity += 1;
-  } else {
-    cart.push({ id: productId, name: productName, price: productPrice, quantity: 1 });
-  }
-  updateCartDisplay();
-  showNotification(productName + ' added to cart!');
-}
-
-function showNotification(message) {
-  var notification = document.createElement('div');
-  notification.className = 'alert alert-success position-fixed bottom-0 end-0 m-3';
-  notification.style.zIndex = '9999';
-  notification.innerHTML = '<small>' + message + '</small>';
-  document.body.appendChild(notification);
-  setTimeout(function() {
-    notification.remove();
-  }, 2500);
-}
-
-function openCheckoutModal() {
-  if (cart.length === 0) {
-    showNotification('Your cart is empty!');
-    return;
-  }
-  
-  var checkoutList = document.getElementById('checkout-items-list');
-  checkoutList.innerHTML = '';
-  
-  var total = 0;
-  cart.forEach(function(item) {
-    var itemTotal = item.price * item.quantity;
-    total += itemTotal;
-    var li = document.createElement('li');
-    li.className = 'list-group-item d-flex justify-content-between align-items-center';
-    li.innerHTML = '<div><h6 class="mb-1">' + item.name + '</h6><small class="text-muted">$' + item.price.toFixed(2) + ' x ' + item.quantity + '</small></div><span class="fw-bold">$' + itemTotal.toFixed(2) + '</span>';
-    checkoutList.appendChild(li);
-  });
-  
-  var totalEl = document.getElementById('checkout-total');
-  totalEl.textContent = '$' + total.toFixed(2);
-  
-  document.getElementById('checkoutModal').style.display = 'flex';
-}
-
-function closeCheckoutModal() {
-  document.getElementById('checkoutModal').style.display = 'none';
-}
-
-function placeOrder() {
-  if (cart.length === 0) {
-    showNotification('Cart is empty!');
-    return;
-  }
-  
-  var total = cart.reduce(function(sum, item) { return sum + item.price * item.quantity; }, 0);
-  alert('Order placed successfully!\n\nTotal: $' + total.toFixed(2) + '\n\nThank you for your purchase!');
-  
-  closeCheckoutModal();
-  cart = [];
-  updateCartDisplay();
-}
-
-function filterProducts() {
-  var categoryVal = (document.getElementById('product-category-filter') || {}).value || '';
-  var searchVal = (document.getElementById('product-filter-input') || document.getElementById('header-search-input') || {}).value || '';
-  searchVal = searchVal.trim().toLowerCase();
-
-  document.querySelectorAll('.product-card').forEach(function(card) {
-    var name = card.getAttribute('data-product-name') || '';
-    var cat  = card.getAttribute('data-category-name') || '';
-    var matchCat    = !categoryVal || cat === categoryVal.toLowerCase();
-    var matchSearch = !searchVal  || name.indexOf(searchVal) !== -1 || cat.indexOf(searchVal) !== -1;
-    card.style.display = (matchCat && matchSearch) ? '' : 'none';
-  });
-
-  document.querySelectorAll('.category-card').forEach(function(card) {
-    var cat = card.getAttribute('data-category-name') || '';
-    card.style.display = (!searchVal || cat.indexOf(searchVal) !== -1) ? '' : 'none';
-  });
-}
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
-  updateCartDisplay();
-
-  // All filter inputs share the same filterProducts function
-  ['product-category-filter', 'category-filter', 'header-category-filter'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('change', function() {
-        // Sync all category dropdowns to same value
-        ['product-category-filter', 'category-filter', 'header-category-filter'].forEach(function(syncId) {
-          var s = document.getElementById(syncId);
-          if (s) s.value = el.value;
-        });
-        filterProducts();
-      });
-    }
-  });
-
-  ['product-filter-input', 'header-search-input'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.addEventListener('input', filterProducts);
-  });
-});
 </script>
-
-{# Footer #}
-<footer class="bg-dark text-light py-5">
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-md-4 mb-4">
-        <h5>About FoodMart</h5>
-        <p>FoodMart is your premier online grocery store offering fresh, quality products delivered straight to your door. Shop with confidence and enjoy the convenience of online grocery shopping.</p>
-      </div>
-      <div class="col-md-4 mb-4">
-        <h5>Quick Links</h5>
-        <ul class="list-unstyled">
-          <li><a href="#" class="text-light">Home</a></li>
-          <li><a href="#" class="text-light">Shop</a></li>
-          <li><a href="#" class="text-light">About Us</a></li>
-          <li><a href="#" class="text-light">Contact</a></li>
-          <li><a href="#" class="text-light">Privacy Policy</a></li>
-        </ul>
-      </div>
-      <div class="col-md-4 mb-4">
-        <h5>Contact Us</h5>
-        <p><strong>Email:</strong> <a href="mailto:info@foodmart.com" class="text-light">info@foodmart.com</a></p>
-        <p><strong>Phone:</strong> <a href="tel:+1234567890" class="text-light">+1 (234) 567-890</a></p>
-        <p><strong>Address:</strong> 123 Market Street, Food City, FC 12345</p>
-        <p><strong>Hours:</strong> Mon - Sun: 8:00 AM - 10:00 PM</p>
-      </div>
-    </div>
-    <hr class="bg-light">
-    <div class="row">
-      <div class="col-12 text-center">
-        <p>&copy; 2026 FoodMart. All rights reserved.</p>
-      </div>
-    </div>
-  </div>
-</footer>
-
 {% endblock %}
-

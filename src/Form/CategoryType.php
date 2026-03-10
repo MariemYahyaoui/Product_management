@@ -15,12 +15,20 @@ class CategoryType extends AbstractType
     {
         $builder
             ->add('categoryName', TextType::class, [
-                'label' => 'Name',
-                'attr' => ['placeholder' => 'Enter category name'],
+                'label' => 'Category Name',
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Enter category name'
+                ]
             ])
             ->add('description', TextareaType::class, [
                 'required' => false,
-                'attr' => ['placeholder' => 'Enter description (optional)', 'rows' => 3],
+                'label' => 'Description',
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Enter description (optional)',
+                    'rows' => 4
+                ]
             ])
         ;
     }

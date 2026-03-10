@@ -9,47 +9,56 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ asset('css/vendor.css') }}">
 <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+<style>
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1050;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }
+    .modal-window {
+        background: #fff;
+        border-radius: 1rem;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+        width: 100%;
+        max-width: 600px;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(40px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .list-group-item {
+        padding: 0.5rem 1rem !important;
+    }
+    .list-group-item h6 {
+        margin: 0.25rem 0 !important;
+    }
+    .list-group-item small {
+        margin: 0 !important;
+    }
+</style>
 {% endblock %}
 
 {% block body %}
 
     <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
       <defs>
-        <symbol xmlns="http://www.w3.org/2000/svg" id="link" viewBox="0 0 24 24">
-          <path fill="currentColor" d="M12 19a1 1 0 1 0-1-1a1 1 0 0 0 1 1Zm5 0a1 1 0 1 0-1-1a1 1 0 0 0 1 1Zm0-4a1 1 0 1 0-1-1a1 1 0 0 0 1 1Zm-5 0a1 1 0 1 0-1-1a1 1 0 0 0 1 1Zm7-12h-1V2a1 1 0 0 0-2 0v1H8V2a1 1 0 0 0-2 0v1H5a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3Zm1 17a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-9h16Zm0-11H4V6a1 1 0 0 1 1-1h1v1a1 1 0 0 0 2 0V5h8v1a1 1 0 0 0 2 0V5h1a1 1 0 0 1 1 1ZM7 15a1 1 0 1 0-1-1a1 1 0 0 0 1 1Zm0 4a1 1 0 1 0-1-1a1 1 0 0 0 1 1Z"/>
-        </symbol>
         <symbol xmlns="http://www.w3.org/2000/svg" id="arrow-right" viewBox="0 0 24 24">
           <path fill="currentColor" d="M17.92 11.62a1 1 0 0 0-.21-.33l-5-5a1 1 0 0 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1 1 0 0 0 0 1.42a1 1 0 0 0 1.42 0l5-5a1 1 0 0 0 .21-.33a1 1 0 0 0 0-.76Z"/>
-        </symbol>
-        <symbol xmlns="http://www.w3.org/2000/svg" id="category" viewBox="0 0 24 24">
-          <path fill="currentColor" d="M19 5.5h-6.28l-.32-1a3 3 0 0 0-2.84-2H5a3 3 0 0 0-3 3v13a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-10a3 3 0 0 0-3-3Zm1 13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-13a1 1 0 0 1 1-1h4.56a1 1 0 0 1 .95.68l.54 1.64a1 1 0 0 0 .95.68h7a1 1 0 0 1 1 1Z"/>
-        </symbol>
-        <symbol xmlns="http://www.w3.org/2000/svg" id="calendar" viewBox="0 0 24 24">
-          <path fill="currentColor" d="M19 4h-2V3a1 1 0 0 0-2 0v1H9V3a1 1 0 0 0-2 0v1H5a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3Zm1 15a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-7h16Zm0-9H4V7a1 1 0 0 1 1-1h2v1a1 1 0 0 0 2 0V6h6v1a1 1 0 0 0 2 0V6h2a1 1 0 0 1 1 1Z"/>
         </symbol>
         <symbol xmlns="http://www.w3.org/2000/svg" id="heart" viewBox="0 0 24 24">
           <path fill="currentColor" d="M20.16 4.61A6.27 6.27 0 0 0 12 4a6.27 6.27 0 0 0-8.16 9.48l7.45 7.45a1 1 0 0 0 1.42 0l7.45-7.45a6.27 6.27 0 0 0 0-8.87Zm-1.41 7.46L12 18.81l-6.75-6.74a4.28 4.28 0 0 1 3-7.3a4.25 4.25 0 0 1 3 1.25a1 1 0 0 0 1.42 0a4.27 4.27 0 0 1 6 6.05Z"/>
         </symbol>
-        <symbol xmlns="http://www.w3.org/2000/svg" id="plus" viewBox="0 0 24 24">
-          <path fill="currentColor" d="M19 11h-6V5a1 1 0 0 0-2 0v6H5a1 1 0 0 0 0 2h6v6a1 1 0 0 0 2 0v-6h6a1 1 0 0 0 0-2Z"/>
-        </symbol>
-        <symbol xmlns="http://www.w3.org/2000/svg" id="minus" viewBox="0 0 24 24">
-          <path fill="currentColor" d="M19 11H5a1 1 0 0 0 0 2h14a1 1 0 0 0 0-2Z"/>
-        </symbol>
         <symbol xmlns="http://www.w3.org/2000/svg" id="cart" viewBox="0 0 24 24">
           <path fill="currentColor" d="M8.5 19a1.5 1.5 0 1 0 1.5 1.5A1.5 1.5 0 0 0 8.5 19ZM19 16H7a1 1 0 0 1 0-2h8.491a3.013 3.013 0 0 0 2.885-2.176l1.585-5.55A1 1 0 0 0 19 5H6.74a3.007 3.007 0 0 0-2.82-2H3a1 1 0 0 0 0 2h.921a1.005 1.005 0 0 1 .962.725l.155.545v.005l1.641 5.742A3 3 0 0 0 7 18h12a1 1 0 0 0 0-2Zm-1.326-9l-1.22 4.274a1.005 1.005 0 0 1-.963.726H8.754l-.255-.892L7.326 7ZM16.5 19a1.5 1.5 0 1 0 1.5 1.5a1.5 1.5 0 0 0-1.5-1.5Z"/>
-        </symbol>
-        <symbol xmlns="http://www.w3.org/2000/svg" id="check" viewBox="0 0 24 24">
-          <path fill="currentColor" d="M18.71 7.21a1 1 0 0 0-1.42 0l-7.45 7.46l-3.13-3.14A1 1 0 1 0 5.29 13l3.84 3.84a1 1 0 0 0 1.42 0l8.16-8.16a1 1 0 0 0 0-1.47Z"/>
-        </symbol>
-        <symbol xmlns="http://www.w3.org/2000/svg" id="trash" viewBox="0 0 24 24">
-          <path fill="currentColor" d="M10 18a1 1 0 0 0 1-1v-6a1 1 0 0 0-2 0v6a1 1 0 0 0 1 1ZM20 6h-4V5a3 3 0 0 0-3-3h-2a3 3 0 0 0-3 3v1H4a1 1 0 0 0 0 2h1v11a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3V8h1a1 1 0 0 0 0-2ZM10 5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1h-4Zm7 14a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V8h10Zm-3-1a1 1 0 0 0 1-1v-6a1 1 0 0 0-2 0v6a1 1 0 0 0 1 1Z"/>
-        </symbol>
-        <symbol xmlns="http://www.w3.org/2000/svg" id="star-outline" viewBox="0 0 15 15">
-          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M7.5 9.804L5.337 11l.413-2.533L4 6.674l2.418-.37L7.5 4l1.082 2.304l2.418.37l-1.75 1.793L9.663 11L7.5 9.804Z"/>
-        </symbol>
-        <symbol xmlns="http://www.w3.org/2000/svg" id="star-solid" viewBox="0 0 15 15">
-          <path fill="currentColor" d="M7.953 3.788a.5.5 0 0 0-.906 0L6.08 5.85l-2.154.33a.5.5 0 0 0-.283.843l1.574 1.613l-.373 2.284a.5.5 0 0 0 .736.518l1.92-1.063l1.921 1.063a.5.5 0 0 0 .736-.519l-.373-2.283l1.574-1.613a.5.5 0 0 0-.283-.844L8.921 5.85l-.968-2.062Z"/>
         </symbol>
         <symbol xmlns="http://www.w3.org/2000/svg" id="search" viewBox="0 0 24 24">
           <path fill="currentColor" d="M21.71 20.29L18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 7-7a7 7 0 0 1-7 7Z"/>
@@ -57,15 +66,11 @@
         <symbol xmlns="http://www.w3.org/2000/svg" id="user" viewBox="0 0 24 24">
           <path fill="currentColor" d="M15.71 12.71a6 6 0 1 0-7.42 0a10 10 0 0 0-6.22 8.18a1 1 0 0 0 2 .22a8 8 0 0 1 15.9 0a1 1 0 0 0 1 .89h.11a1 1 0 0 0 .88-1.1a10 10 0 0 0-6.25-8.19ZM12 12a4 4 0 1 1 4-4a4 4 0 0 1-4 4Z"/>
         </symbol>
-        <symbol xmlns="http://www.w3.org/2000/svg" id="close" viewBox="0 0 15 15">
-          <path fill="currentColor" d="M7.953 3.788a.5.5 0 0 0-.906 0L6.08 5.85l-2.154.33a.5.5 0 0 0-.283.843l1.574 1.613l-.373 2.284a.5.5 0 0 0 .736.518l1.92-1.063l1.921 1.063a.5.5 0 0 0 .736-.519l-.373-2.283l1.574-1.613a.5.5 0 0 0-.283-.844L8.921 5.85l-.968-2.062Z"/>
-        </symbol>
       </defs>
     </svg>
 
     <div class="preloader-wrapper">
-      <div class="preloader">
-      </div>
+      <div class="preloader"></div>
     </div>
 
     {# Dashboard Navigation - Client View #}
@@ -74,30 +79,7 @@
       <a href="{{ path('app_index') }}" class="btn btn-sm btn-primary">Go to Admin Dashboard</a>
     </div>
 
-    {# Categories section (dynamic) - Client View #}
-    {% if categories is defined %}
-    <section class="container mt-4">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="mb-0">Categories</h2>
-      </div>
-
-      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-        {% for category in categories %>
-          <div class="col category-card" data-category-name="{{ category.categoryName|lower }}">
-            <div class="card h-100 shadow-sm">
-              <div class="card-body d-flex flex-column">
-                <h5 class="card-title mb-1">{{ category.categoryName }}</h5>
-                <p class="card-text text-muted small mb-3">{{ category.description|default('No description provided.')|striptags }}</p>
-              </div>
-            </div>
-          </div>
-        {% else %}
-          <div class="col-12"><div class="alert alert-info">No categories yet.</div></div>
-        {% endfor %}
-      </div>
-    </section>
-    {% endif %}
-
+    {# Cart Offcanvas #}
     <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="offcanvasCart" aria-labelledby="My Cart">
       <div class="offcanvas-header justify-content-center">
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -106,54 +88,31 @@
         <div class="order-md-last">
           <h4 class="d-flex justify-content-between align-items-center mb-3">
             <span class="text-primary">Your cart</span>
-            <span class="badge bg-primary rounded-pill">3</span>
+            <span class="badge bg-primary rounded-pill" id="cart-count">0</span>
           </h4>
-          <ul class="list-group mb-3">
-            <li class="list-group-item d-flex justify-content-between lh-sm">
-              <div>
-                <h6 class="my-0">Growers cider</h6>
-                <small class="text-body-secondary">Brief description</small>
-              </div>
-              <span class="text-body-secondary">$12</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between lh-sm">
-              <div>
-                <h6 class="my-0">Fresh grapes</h6>
-                <small class="text-body-secondary">Brief description</small>
-              </div>
-              <span class="text-body-secondary">$8</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between lh-sm">
-              <div>
-                <h6 class="my-0">Heinz tomato ketchup</h6>
-                <small class="text-body-secondary">Brief description</small>
-              </div>
-              <span class="text-body-secondary">$5</span>
-            </li>
+          <ul class="list-group mb-3" id="cart-items-list">
             <li class="list-group-item d-flex justify-content-between">
               <span>Total (USD)</span>
-              <strong>$20</strong>
+              <strong id="cart-total-offcanvas">$0.00</strong>
             </li>
           </ul>
-  
-          <button class="w-100 btn btn-primary btn-lg" type="submit">Continue to checkout</button>
+          <button class="w-100 btn btn-primary btn-lg" type="button" onclick="openCheckoutModal()">Continue to checkout</button>
         </div>
       </div>
     </div>
-    
+
+    {# Search Offcanvas #}
     <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="offcanvasSearch" aria-labelledby="Search">
       <div class="offcanvas-header justify-content-center">
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
       <div class="offcanvas-body">
-        <div class="order-md-last">
-          <h4 class="d-flex justify-content-between align-items-center mb-3">
-            <span class="text-primary">Search</span>
-          </h4>
-          <form role="search" action="{{ path('app_client_dashboard') }}" method="get" class="d-flex mt-3 gap-0">
-            <input class="form-control rounded-start rounded-0 bg-light" type="text" placeholder="What are you looking for?" aria-label="What are you looking for?">
-            <button class="btn btn-dark rounded-end rounded-0" type="submit">Search</button>
-          </form>
+        <h4 class="d-flex justify-content-between align-items-center mb-3">
+          <span class="text-primary">Search</span>
+        </h4>
+        <div class="d-flex mt-3 gap-0">
+          <input class="form-control rounded-start rounded-0 bg-light" type="text" id="offcanvas-search-input" placeholder="What are you looking for?" aria-label="What are you looking for?">
+          <button class="btn btn-dark rounded-end rounded-0" type="button" id="offcanvas-search-btn">Search</button>
         </div>
       </div>
     </div>
@@ -161,7 +120,7 @@
     <header>
       <div class="container-fluid">
         <div class="row py-3 border-bottom">
-          
+
           <div class="col-sm-4 col-lg-3 text-center text-sm-start">
             <div class="main-logo">
               <a href="{{ path('app_client_dashboard') }}">
@@ -169,63 +128,68 @@
               </a>
             </div>
           </div>
-          
+
           <div class="col-sm-6 offset-sm-2 offset-md-0 col-lg-5 d-none d-lg-block">
             <div class="search-bar row bg-light p-2 my-2 rounded-4">
               <div class="col-md-4 d-none d-md-block">
-                <select class="form-select border-0 bg-transparent">
-                  <option>All Categories</option>
-                  <option>Groceries</option>
-                  <option>Drinks</option>
-                  <option>Chocolates</option>
+                <select class="form-select border-0 bg-transparent" id="header-category-filter">
+                  <option value="">All Categories</option>
+                  {% for category in categories %}
+                    <option value="{{ category.categoryName|lower }}">{{ category.categoryName }}</option>
+                  {% endfor %}
                 </select>
               </div>
               <div class="col-11 col-md-7">
-                <form id="search-form" class="text-center" action="{{ path('app_client_dashboard') }}" method="post">
-                  <input type="text" class="form-control border-0 bg-transparent" placeholder="Search for more than 20,000 products" />
-                </form>
+                <input type="text" id="header-search-input" class="form-control border-0 bg-transparent" placeholder="Search for products" />
               </div>
               <div class="col-1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M21.71 20.29L18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 7-7a7 7 0 0 1-7 7Z"/></svg>
+                <button type="button" class="btn btn-link p-0 d-flex align-items-center justify-content-center" onclick="filterProducts()" title="Search">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M21.71 20.29L18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 7-7a7 7 0 0 1-7 7Z"/></svg>
+                </button>
               </div>
             </div>
           </div>
-          
+
           <div class="col-sm-8 col-lg-4 d-flex justify-content-end gap-5 align-items-center mt-4 mt-sm-0 justify-content-center justify-content-sm-end">
             <div class="support-box text-end d-none d-xl-block">
               <span class="fs-6 text-muted">For Support?</span>
               <h5 class="mb-0">+980-34984089</h5>
             </div>
 
-            <ul class="d-flex justify-content-end list-unstyled m-0">
+            <div class="cart text-end d-none d-lg-block">
+              <button class="border-0 bg-transparent d-flex flex-column gap-2 lh-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-controls="offcanvasCart">
+                <span class="fs-6 text-muted">Your Cart</span>
+                <span class="cart-total fs-5 fw-bold" id="cart-total-header">$0.00</span>
+              </button>
+            </div>
 
-              <li>
-                <a href="#" class="rounded-circle bg-light p-2 mx-1">
-                  <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="#heart"></use></svg>
+            <ul class="d-flex justify-content-end list-unstyled m-0 align-items-center">
+              {% if app.user %}
+              <li class="d-flex align-items-center">
+                <a href="{{ path('app_profile') }}" class="text-decoration-none text-dark d-flex align-items-center">
+                  <svg width="20" height="20" viewBox="0 0 24 24" class="me-1"><use xlink:href="#user"></use></svg>
+                  <span class="fw-bold me-2">User User</span>
                 </a>
               </li>
+              
+              {% endif %}
               <li class="d-lg-none">
-                <a href="#" class="rounded-circle bg-light p-2 mx-1" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-controls="offcanvasCart">
+                <a href="#" class="rounded-circle bg-light p-2 mx-1" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart">
                   <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="#cart"></use></svg>
                 </a>
               </li>
               <li class="d-lg-none">
-                <a href="#" class="rounded-circle bg-light p-2 mx-1" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSearch" aria-controls="offcanvasSearch">
+                <a href="#" class="rounded-circle bg-light p-2 mx-1" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSearch">
                   <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="#search"></use></svg>
                 </a>
               </li>
             </ul>
-
-            <div class="cart text-end d-none d-lg-block dropdown">
-              <button class="border-0 bg-transparent d-flex flex-column gap-2 lh-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-controls="offcanvasCart">
-                <span class="fs-6 text-muted dropdown-toggle">Your Cart</span>
-                <span class="cart-total fs-5 fw-bold">$1290.00</span>
-              </button>
-            </div>
           </div>
 
         </div>
       </div>
+
+
       <div class="container-fluid">
         <div class="row py-3">
           <div class="d-flex  justify-content-center justify-content-sm-between align-items-center">
@@ -244,58 +208,44 @@
 
                 <div class="offcanvas-body">
               
-                  <select class="filter-categories border-0 mb-0 me-5">
-                    <option>Shop by Departments</option>
-                    <option>Groceries</option>
-                    <option>Drinks</option>
-                    <option>Chocolates</option>
+                  <select class="filter-categories border-0 mb-0 me-5" id="category-filter">
+                    <option value="">Shop by Departments</option>
+                    {% if categories is defined %}
+                      {% for category in categories %}
+                        <option value="{{ category.categoryName|lower }}">{{ category.categoryName }}</option>
+                      {% endfor %}
+                    {% endif %}
                   </select>
               
                   <ul class="navbar-nav justify-content-end menu-list list-unstyled d-flex gap-md-3 mb-0 align-items-center">
-                    <li class="nav-item">
-                      <div class="input-group input-group-sm" style="width:250px">
-                        <input type="text" id="product-filter-input" class="form-control" placeholder="Filter products..." autocomplete="off">
-                        <span class="input-group-text bg-transparent"><svg width="16" height="16" viewBox="0 0 24 24"><use xlink:href="#search"></use></svg></span>
-                      </div>
-                    </li>
+                    
                     <li class="nav-item active">
-                      <a href="#women" class="nav-link">Women</a>
+                      <a href="#about" class="nav-link">About Us</a>
                     </li>
                     <li class="nav-item dropdown">
-                      <a href="#men" class="nav-link">Men</a>
+                      <a href="#shop" class="nav-link">Shop</a>
                     </li>
                     <li class="nav-item">
-                      <a href="#kids" class="nav-link">Kids</a>
-                    </li>
-                    <li class="nav-item">
-                      <a href="#accessories" class="nav-link">Accessories</a>
+                      <a href="#myAccount" class="nav-link">My Account</a>
                     </li>
                     <li class="nav-item dropdown">
                       <a class="nav-link dropdown-toggle" role="button" id="pages" data-bs-toggle="dropdown" aria-expanded="false">Pages</a>
                       <ul class="dropdown-menu" aria-labelledby="pages">
-                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">About Us </a></li>
-                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">Shop </a></li>
-                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">Single Product </a></li>
-                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">Cart </a></li>
-                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">Checkout </a></li>
-                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">Blog </a></li>
-                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">Single Post </a></li>
-                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">Styles </a></li>
-                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">Contact </a></li>
-                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">Thank You </a></li>
-                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">My Account </a></li>
-                        <li><a href="{{ path('app_client_dashboard') }}" class="dropdown-item">404 Error </a></li>
+                        <li><a href="{{ path('app_index') }}" class="dropdown-item">About Us </a></li>
+                        <li><a href="{{ path('app_index') }}" class="dropdown-item">Shop </a></li>
+                        <li><a href="{{ path('app_index') }}" class="dropdown-item">Single Product </a></li>
+                        <li><a href="{{ path('app_index') }}" class="dropdown-item">Cart </a></li>
+                        <li><a href="{{ path('app_index') }}" class="dropdown-item">Checkout </a></li>
+                        <li><a href="{{ path('app_index') }}" class="dropdown-item">Blog </a></li>
+                        <li><a href="{{ path('app_index') }}" class="dropdown-item">Single Post </a></li>
+                        <li><a href="{{ path('app_index') }}" class="dropdown-item">Styles </a></li>
+                        <li><a href="{{ path('app_index') }}" class="dropdown-item">Contact </a></li>
+                        <li><a href="{{ path('app_index') }}" class="dropdown-item">Thank You </a></li>
+                        <li><a href="{{ path('app_index') }}" class="dropdown-item">My Account </a></li>
+                        <li><a href="{{ path('app_index') }}" class="dropdown-item">404 Error </a></li>
                       </ul>
                     </li>
-                    <li class="nav-item">
-                      <a href="#brand" class="nav-link">Brand</a>
-                    </li>
-                    <li class="nav-item">
-                      <a href="#sale" class="nav-link">Sale</a>
-                    </li>
-                    <li class="nav-item">
-                      <a href="#blog" class="nav-link">Blog</a>
-                    </li>
+                    
                   </ul>
                 
                 </div>
@@ -305,98 +255,162 @@
         </div>
       </div>
     </header>
-    
-<section class="py-3" style="background-image: url('{{ asset('images/background-pattern.jpg') }}');background-repeat: no-repeat;background-size: cover;">
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-md-12">
 
-        <div class="banner-blocks">
-        
-          <div class="banner-ad large bg-info block-1">
+    {# Checkout Modal #}
+    <div class="modal-overlay" id="checkoutModal" style="display:none">
+        <div class="modal-window">
+            <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="fw-bold mb-1">Order Confirmation</h4>
+                    <p class="text-muted small mb-0">Review your order before checkout</p>
+                </div>
+                <button type="button" class="btn-close" onclick="closeCheckoutModal()"></button>
+            </div>
+            <div class="p-4">
+                <h5 class="mb-3">Order Summary</h5>
+                <ul class="list-group mb-4" id="checkout-items-list">
+                </ul>
+                <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded">
+                    <h5 class="mb-0">Total Amount:</h5>
+                    <h5 class="mb-0 text-primary" id="checkout-total">$0.00</h5>
+                </div>
+                <div class="d-flex gap-3 justify-content-end">
+                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" onclick="closeCheckoutModal()">Back to Cart</button>
+                    <button type="button" class="btn btn-success rounded-3 px-5" onclick="placeOrder()">Place Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            <div class="swiper main-swiper">
-              <div class="swiper-wrapper">
-                
-                <div class="swiper-slide">
-                  <div class="row banner-content p-5">
-                    <div class="content-wrapper col-md-7">
-                      <div class="categories my-3">100% natural</div>
-                      <h3 class="display-4">Fresh Smoothie & Summer Juice</h3>
-                      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dignissim massa diam elementum.</p>
-                      <a href="#" class="btn btn-outline-dark btn-lg text-uppercase fs-6 rounded-1 px-4 py-3 mt-3">Shop Now</a>
+    {# Banner Section #}
+    <section class="py-3" style="background-image: url('{{ asset('images/background-pattern.jpg') }}');background-repeat: no-repeat;background-size: cover;">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="banner-blocks">
+
+              <div class="banner-ad large bg-info block-1">
+                <div class="swiper main-swiper">
+                  <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                      <div class="row banner-content p-5">
+                        <div class="content-wrapper col-md-7">
+                          <div class="categories my-3">100% natural</div>
+                          <h3 class="display-4">Fresh Smoothie & Summer Juice</h3>
+                          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dignissim massa diam elementum.</p>
+                          <a href="#" class="btn btn-outline-dark btn-lg text-uppercase fs-6 rounded-1 px-4 py-3 mt-3">Shop Now</a>
+                        </div>
+                        <div class="img-wrapper col-md-5">
+                          <img src="{{ asset('images/product-thumb-1.png') }}" class="img-fluid">
+                        </div>
+                      </div>
                     </div>
-                    <div class="img-wrapper col-md-5">
-                      <img src="{{ asset('images/product-thumb-1.png') }}" class="img-fluid">
+                    <div class="swiper-slide">
+                      <div class="row banner-content p-5">
+                        <div class="content-wrapper col-md-7">
+                          <div class="categories mb-3 pb-3">100% natural</div>
+                          <h3 class="banner-title">Fresh Smoothie & Summer Juice</h3>
+                          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dignissim massa diam elementum.</p>
+                          <a href="#" class="btn btn-outline-dark btn-lg text-uppercase fs-6 rounded-1">Shop Collection</a>
+                        </div>
+                        <div class="img-wrapper col-md-5">
+                          <img src="{{ asset('images/product-thumb-1.png') }}" class="img-fluid">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="swiper-slide">
+                      <div class="row banner-content p-5">
+                        <div class="content-wrapper col-md-7">
+                          <div class="categories mb-3 pb-3">100% natural</div>
+                          <h3 class="banner-title">Heinz Tomato Ketchup</h3>
+                          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dignissim massa diam elementum.</p>
+                          <a href="#" class="btn btn-outline-dark btn-lg text-uppercase fs-6 rounded-1">Shop Collection</a>
+                        </div>
+                        <div class="img-wrapper col-md-5">
+                          <img src="{{ asset('images/product-thumb-2.png') }}" class="img-fluid">
+                        </div>
+                      </div>
                     </div>
                   </div>
+                  <div class="swiper-pagination"></div>
                 </div>
-                
-                <div class="swiper-slide">
-                  <div class="row banner-content p-5">
-                    <div class="content-wrapper col-md-7">
-                      <div class="categories mb-3 pb-3">100% natural</div>
-                      <h3 class="banner-title">Fresh Smoothie & Summer Juice</h3>
-                      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dignissim massa diam elementum.</p>
-                      <a href="#" class="btn btn-outline-dark btn-lg text-uppercase fs-6 rounded-1">Shop Collection</a>
-                    </div>
-                    <div class="img-wrapper col-md-5">
-                      <img src="{{ asset('images/product-thumb-1.png') }}" class="img-fluid">
-                    </div>
+              </div>
+
+              <div class="banner-ad bg-success-subtle block-2" style="background:url('{{ asset('images/ad-image-1.png') }}') no-repeat;background-position: right bottom">
+                <div class="row banner-content p-5">
+                  <div class="content-wrapper col-md-7">
+                    <div class="categories sale mb-3 pb-3">20% off</div>
+                    <h3 class="banner-title">Fruits & Vegetables</h3>
+                    <a href="#" class="d-flex align-items-center nav-link">Shop Collection <svg width="24" height="24"><use xlink:href="#arrow-right"></use></svg></a>
                   </div>
                 </div>
-                
-                <div class="swiper-slide">
-                  <div class="row banner-content p-5">
-                    <div class="content-wrapper col-md-7">
-                      <div class="categories mb-3 pb-3">100% natural</div>
-                      <h3 class="banner-title">Heinz Tomato Ketchup</h3>
-                      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dignissim massa diam elementum.</p>
-                      <a href="#" class="btn btn-outline-dark btn-lg text-uppercase fs-6 rounded-1">Shop Collection</a>
-                    </div>
-                    <div class="img-wrapper col-md-5">
-                      <img src="{{ asset('images/product-thumb-2.png') }}" class="img-fluid">
+              </div>
+
+              <div class="banner-ad bg-danger block-3" style="background:url('{{ asset('images/ad-image-2.png') }}') no-repeat;background-position: right bottom">
+                <div class="row banner-content p-5">
+                  <div class="content-wrapper col-md-7">
+                    <div class="categories sale mb-3 pb-3">15% off</div>
+                    <h3 class="item-title">Baked Products</h3>
+                    <a href="#" class="d-flex align-items-center nav-link">Shop Collection <svg width="24" height="24"><use xlink:href="#arrow-right"></use></svg></a>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {# Products Section #}
+    <section style="background:url('{{ asset('images/background-pattern.jpg') }}') no-repeat;background-size: cover;">
+      <div class="container-fluid">
+        <div class="row mb-3 pt-4">
+
+          <div class="col-12 d-flex justify-content-between align-items-center mb-3">
+            <h4>Products</h4>
+            <select class="form-select" id="client-category-filter" style="max-width: 200px;">
+              <option value="">All Categories</option>
+              {% for category in categories %}
+                <option value="{{ category.categoryName|lower }}">{{ category.categoryName }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          {% if products is defined and products|length > 0 %}
+            {% for product in products %}
+              <div class="col-md-4 mb-3 product-card"
+                   data-product-name="{{ product.name|lower }}"
+                   data-category-name="{{ product.category ? product.category.categoryName|lower : '' }}">
+                <div class="card h-100 shadow-sm">
+                  <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">{{ product.description|length > 100 ? product.description|slice(0, 100) ~ '...' : product.description }}</p>
+                    <p class="card-text"><strong>Price:</strong> ${{ product.price }}</p>
+                    {% if product.category %}
+                      <p class="card-text"><small class="text-muted">Category: {{ product.category.categoryName }}</small></p>
+                    {% endif %}
+                    <div class="mt-auto">
+                      <button type="button"
+                              class="btn btn-sm btn-success w-100"
+                              onclick="addToCart({{ product.id }}, '{{ product.name|e('js') }}', {{ product.price }})">
+                        <svg width="16" height="16" viewBox="0 0 24 24" style="display:inline;margin-right:5px;"><use xlink:href="#cart"></use></svg>
+                        Add to Cart
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
-              
-              <div class="swiper-pagination"></div>
-
+            {% endfor %}
+          {% else %}
+            <div class="col-12">
+              <div class="alert alert-info">No products available at the moment.</div>
             </div>
-          </div>
-          
-          <div class="banner-ad bg-success-subtle block-2" style="background:url('{{ asset('images/ad-image-1.png') }}') no-repeat;background-position: right bottom">
-            <div class="row banner-content p-5">
-
-              <div class="content-wrapper col-md-7">
-                <div class="categories sale mb-3 pb-3">20% off</div>
-                <h3 class="banner-title">Fruits & Vegetables</h3>
-                <a href="#" class="d-flex align-items-center nav-link">Shop Collection <svg width="24" height="24"><use xlink:href="#arrow-right"></use></svg></a>
-              </div>
-
-            </div>
-          </div>
-
-          <div class="banner-ad bg-danger block-3" style="background:url('{{ asset('images/ad-image-2.png') }}') no-repeat;background-position: right bottom">
-            <div class="row banner-content p-5">
-
-              <div class="content-wrapper col-md-7">
-                <div class="categories sale mb-3 pb-3">15% off</div>
-                <h3 class="item-title">Baked Products</h3>
-                <a href="#" class="d-flex align-items-center nav-link">Shop Collection <svg width="24" height="24"><use xlink:href="#arrow-right"></use></svg></a>
-              </div>
-
-            </div>
-          </div>
+          {% endif %}
 
         </div>
-        <!-- / Banner Blocks -->
-          
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
 {% endblock %}
 
@@ -406,26 +420,239 @@
 <script src="{{ asset('js/plugins.js') }}"></script>
 <script src="{{ asset('js/script.js') }}"></script>
 <script>
-(function() {
-  var filterInput = document.getElementById('product-filter-input');
-  if (!filterInput) return;
+// Cart stored in memory (session only)
+var cart = [];
 
-  filterInput.addEventListener('input', function() {
-    var query = this.value.trim().toLowerCase();
-    var productCards = document.querySelectorAll('.product-card');
-    var categoryCards = document.querySelectorAll('.category-card');
+function updateCartDisplay() {
+  var total = cart.reduce(function(sum, item) { return sum + item.price * item.quantity; }, 0);
+  var count = cart.reduce(function(sum, item) { return sum + item.quantity; }, 0);
 
-    productCards.forEach(function(card) {
-      var name = card.getAttribute('data-product-name') || '';
-      var cat = card.getAttribute('data-category-name') || '';
-      card.style.display = (!query || name.indexOf(query) !== -1 || cat.indexOf(query) !== -1) ? '' : 'none';
+  var badge = document.getElementById('cart-count');
+  if (badge) badge.textContent = count;
+
+  var headerTotal = document.getElementById('cart-total-header');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  if (headerTotal) headerTotal.textContent = '$' + total.toFixed(2);
+
+  var offcanvasTotal = document.getElementById('cart-total-offcanvas');
+  if (offcanvasTotal) offcanvasTotal.textContent = '$' + total.toFixed(2);
+
+  var cartList = document.getElementById('cart-items-list');
+  if (cartList) {
+    cartList.innerHTML = '';
+    cart.forEach(function(item) {
+      var li = document.createElement('li');
+      li.className = 'list-group-item';
+      li.innerHTML = '<div class="d-flex justify-content-between align-items-start mb-2">' +
+                     '<div><h6 class="my-0">' + item.name + '</h6><small class="text-body-secondary">$' + item.price.toFixed(2) + ' each</small></div>' +
+                     '<button type="button" class="btn btn-sm btn-close" onclick="removeFromCart(' + item.id + ')"></button>' +
+                     '</div>' +
+                     '<div class="d-flex justify-content-between align-items-center">' +
+                     '<div class="btn-group" role="group">' +
+                     '<button type="button" class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(' + item.id + ', -1)">-</button>' +
+                     '<span class="btn btn-sm btn-light" disabled>' + item.quantity + '</span>' +
+                     '<button type="button" class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(' + item.id + ', 1)">+</button>' +
+                     '</div>' +
+                     '<span class="text-body-secondary fw-bold">$' + (item.price * item.quantity).toFixed(2) + '</span>' +
+                     '</div>';
+      cartList.appendChild(li);
     });
+    var totalLi = document.createElement('li');
+    totalLi.className = 'list-group-item d-flex justify-content-between';
+    totalLi.innerHTML = '<span>Total (USD)</span><strong>$' + total.toFixed(2) + '</strong>';
+    cartList.appendChild(totalLi);
+  }
+}
 
-    categoryCards.forEach(function(card) {
-      var cat = card.getAttribute('data-category-name') || '';
-      card.style.display = (!query || cat.indexOf(query) !== -1) ? '' : 'none';
-    });
+function removeFromCart(productId) {
+  cart = cart.filter(function(item) { return item.id !== productId; });
+  updateCartDisplay();
+}
+
+function updateQuantity(productId, change) {
+  var item = cart.find(function(i) { return i.id === productId; });
+  if (item) {
+    item.quantity += change;
+    if (item.quantity <= 0) {
+      removeFromCart(productId);
+    } else {
+      updateCartDisplay();
+    }
+  }
+}
+
+function addToCart(productId, productName, productPrice) {
+  var existing = cart.find(function(i) { return i.id === productId; });
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    cart.push({ id: productId, name: productName, price: productPrice, quantity: 1 });
+  }
+  updateCartDisplay();
+  showNotification(productName + ' added to cart!');
+}
+
+function showNotification(message) {
+  var notification = document.createElement('div');
+  notification.className = 'alert alert-success position-fixed bottom-0 end-0 m-3';
+  notification.style.zIndex = '9999';
+  notification.innerHTML = '<small>' + message + '</small>';
+  document.body.appendChild(notification);
+  setTimeout(function() {
+    notification.remove();
+  }, 2500);
+}
+
+function openCheckoutModal() {
+  if (cart.length === 0) {
+    showNotification('Your cart is empty!');
+    return;
+  }
+  
+  var checkoutList = document.getElementById('checkout-items-list');
+  checkoutList.innerHTML = '';
+  
+  var total = 0;
+  cart.forEach(function(item) {
+    var itemTotal = item.price * item.quantity;
+    total += itemTotal;
+    var li = document.createElement('li');
+    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+    li.innerHTML = '<div><h6 class="mb-1">' + item.name + '</h6><small class="text-muted">$' + item.price.toFixed(2) + ' x ' + item.quantity + '</small></div><span class="fw-bold">$' + itemTotal.toFixed(2) + '</span>';
+    checkoutList.appendChild(li);
   });
-})();
+  
+  var totalEl = document.getElementById('checkout-total');
+  totalEl.textContent = '$' + total.toFixed(2);
+  
+  document.getElementById('checkoutModal').style.display = 'flex';
+}
+
+function closeCheckoutModal() {
+  document.getElementById('checkoutModal').style.display = 'none';
+}
+
+function placeOrder() {
+  if (cart.length === 0) {
+    showNotification('Cart is empty!');
+    return;
+  }
+  
+  var total = cart.reduce(function(sum, item) { return sum + item.price * item.quantity; }, 0);
+  alert('Order placed successfully!\n\nTotal: $' + total.toFixed(2) + '\n\nThank you for your purchase!');
+  
+  closeCheckoutModal();
+  cart = [];
+  updateCartDisplay();
+}
+
+function filterProducts() {
+  var categoryVal = (document.getElementById('client-category-filter') || {}).value || '';
+  var searchVal = (document.getElementById('product-filter-input') || document.getElementById('header-search-input') || {}).value || '';
+  searchVal = searchVal.trim().toLowerCase();
+
+  document.querySelectorAll('.product-card').forEach(function(card) {
+    var name = card.getAttribute('data-product-name') || '';
+    var cat  = card.getAttribute('data-category-name') || '';
+    var matchCat    = !categoryVal || cat === categoryVal.toLowerCase();
+    var matchSearch = !searchVal  || name.indexOf(searchVal) !== -1 || cat.indexOf(searchVal) !== -1;
+    card.style.display = (matchCat && matchSearch) ? '' : 'none';
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  updateCartDisplay();
+
+  // All filter inputs share the same filterProducts function
+  ['client-category-filter', 'nav-category-filter', 'header-category-filter'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('change', function() {
+        // Sync all category dropdowns to same value
+        ['client-category-filter', 'nav-category-filter', 'header-category-filter'].forEach(function(syncId) {
+          var s = document.getElementById(syncId);
+          if (s) s.value = el.value;
+        });
+        filterProducts();
+      });
+    }
+  });
+
+  ['product-filter-input', 'header-search-input'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', filterProducts);
+  });
+
+  // Offcanvas search button
+  var offcanvasBtn = document.getElementById('offcanvas-search-btn');
+  var offcanvasInput = document.getElementById('offcanvas-search-input');
+  if (offcanvasBtn && offcanvasInput) {
+    offcanvasBtn.addEventListener('click', function() {
+      var headerInput = document.getElementById('header-search-input');
+      if (headerInput) {
+        headerInput.value = offcanvasInput.value;
+        filterProducts();
+      }
+    });
+  }
+});
 </script>
+
+
+
+{# Footer #}
+<footer class="bg-dark text-light py-5">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-4 mb-4">
+        <h5>About FoodMart</h5>
+        <p>FoodMart is your premier online grocery store offering fresh, quality products delivered straight to your door. Shop with confidence and enjoy the convenience of online grocery shopping.</p>
+      </div>
+      <div class="col-md-4 mb-4">
+        <h5>Quick Links</h5>
+        <ul class="list-unstyled">
+          <li><a href="#" class="text-light">Home</a></li>
+          <li><a href="#" class="text-light">Shop</a></li>
+          <li><a href="#" class="text-light">About Us</a></li>
+          <li><a href="#" class="text-light">Contact</a></li>
+          <li><a href="#" class="text-light">Privacy Policy</a></li>
+        </ul>
+      </div>
+      <div class="col-md-4 mb-4">
+        <h5>Contact Us</h5>
+        <p><strong>Email:</strong> <a href="mailto:info@foodmart.com" class="text-light">info@foodmart.com</a></p>
+        <p><strong>Phone:</strong> <a href="tel:+1234567890" class="text-light">+1 (234) 567-890</a></p>
+        <p><strong>Address:</strong> 123 Market Street, Food City, FC 12345</p>
+        <p><strong>Hours:</strong> Mon - Sun: 8:00 AM - 10:00 PM</p>
+      </div>
+    </div>
+    <hr class="bg-light">
+    <div class="row">
+      <div class="col-12 text-center">
+        <p>&copy; 2026 FoodMart. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+
 {% endblock %}
