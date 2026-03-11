@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}My Store{% endblock %}</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2290%22>🛒</text></svg>">
+    
+    {# Bootstrap & Icons #}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    {% block stylesheets %}{% endblock %}
+    {% block stylesheets %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ asset('css/vendor.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+<style>
+  /* Shake animation for errors */
+    .shake {
+    animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @keyframes shake {
+        10%, 90% { transform: translate3d(-1px, 0, 0); }
+        20%, 80% { transform: translate3d(2px, 0, 0); }
+        30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+        40%, 60% { transform: translate3d(4px, 0, 0); }
+    }
+
+    /* Error Message Styling */
+    #checkout-error-msg {
+        display: none;
+        color: #dc3545;
+        background-color: #f8d7da;
+        border: 1px solid #f5c2c7;
+        padding: 8px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 999999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        pointer-events: none;
+    }
+    .modal-window {
+        background: #fff;
+        border-radius: 1rem;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+        width: 100%;
+        max-width: 600px;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: slideUp 0.4s ease-out forwards;
+        pointer-events: auto;
+    }
+    .modal-overlay[style*="display: flex"] {
+      pointer-events: auto !important;
+      z-index: 9999 !important;
+    }
+    #card-name, #card-number {
+      position: relative !important;
+      z-index: 1000000 !important;
+      pointer-events: auto !important;
+      background-color: white !important;
+      cursor: text !important;
+    }
+    
+    @keyframes modalPop {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(40px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .list-group-item {
+        padding: 0.5rem 1rem !important;
+    }
+    .list-group-item h6 {
+        margin: 0.25rem 0 !important;
+    }
+    .list-group-item small {
+        margin: 0 !important;
+    }
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    .modern-toast {
+        display: none;
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        min-width: 320px;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(10px); /* Glass effect */
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        padding: 15px;
+        z-index: 10001;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        animation: slideInRight 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    }
+
+    .toast-content {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .toast-icon {
+        width: 45px;
+        height: 45px;
+        background: #e7f5ed;
+        color: #28a745;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .toast-text h6 {
+        margin: 0;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .toast-text p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #666;
+    }
+</style>
+</head>
+<body style="background-color: #ffffff;">
+
+    {# 1. ALL YOUR SVG ICONS (Hidden) #}
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+      <defs>
+        <symbol xmlns="http://www.w3.org/2000/svg" id="link" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M12 19a1 1 0 1 0-1-1a1 1 0 0 0 1 1Zm5 0a1 1 0 1 0-1-1a1 1 0 0 0 1 1Zm0-4a1 1 0 1 0-1-1a1 1 0 0 0 1 1Zm-5 0a1 1 0 1 0-1-1a1 1 0 0 0 1 1Zm7-12h-1V2a1 1 0 0 0-2 0v1H8V2a1 1 0 0 0-2 0v1H5a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3Zm1 17a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-9h16Zm0-11H4V6a1 1 0 0 1 1-1h1v1a1 1 0 0 0 2 0V5h8v1a1 1 0 0 0 2 0V5h1a1 1 0 0 1 1 1ZM7 15a1 1 0 1 0-1-1a1 1 0 0 0 1 1Zm0 4a1 1 0 1 0-1-1a1 1 0 0 0 1 1Z"/>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" id="arrow-right" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M17.92 11.62a1 1 0 0 0-.21-.33l-5-5a1 1 0 0 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1 1 0 0 0 0 1.42a1 1 0 0 0 1.42 0l5-5a1 1 0 0 0 .21-.33a1 1 0 0 0 0-.76Z"/>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" id="category" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M19 5.5h-6.28l-.32-1a3 3 0 0 0-2.84-2H5a3 3 0 0 0-3 3v13a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-10a3 3 0 0 0-3-3Zm1 13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-13a1 1 0 0 1 1-1h4.56a1 1 0 0 1 .95.68l.54 1.64a1 1 0 0 0 .95.68h7a1 1 0 0 1 1 1Z"/>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" id="calendar" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M19 4h-2V3a1 1 0 0 0-2 0v1H9V3a1 1 0 0 0-2 0v1H5a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3Zm1 15a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-7h16Zm0-9H4V7a1 1 0 0 1 1-1h2v1a1 1 0 0 0 2 0V6h6v1a1 1 0 0 0 2 0V6h2a1 1 0 0 1 1 1Z"/>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" id="heart" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M20.16 4.61A6.27 6.27 0 0 0 12 4a6.27 6.27 0 0 0-8.16 9.48l7.45 7.45a1 1 0 0 0 1.42 0l7.45-7.45a6.27 6.27 0 0 0 0-8.87Zm-1.41 7.46L12 18.81l-6.75-6.74a4.28 4.28 0 0 1 3-7.3a4.25 4.25 0 0 1 3 1.25a1 1 0 0 0 1.42 0a4.27 4.27 0 0 1 6 6.05Z"/>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" id="plus" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M19 11h-6V5a1 1 0 0 0-2 0v6H5a1 1 0 0 0 0 2h6v6a1 1 0 0 0 2 0v-6h6a1 1 0 0 0 0-2Z"/>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" id="minus" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M19 11H5a1 1 0 0 0 0 2h14a1 1 0 0 0 0-2Z"/>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" id="cart" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M8.5 19a1.5 1.5 0 1 0 1.5 1.5A1.5 1.5 0 0 0 8.5 19ZM19 16H7a1 1 0 0 1 0-2h8.491a3.013 3.013 0 0 0 2.885-2.176l1.585-5.55A1 1 0 0 0 19 5H6.74a3.007 3.007 0 0 0-2.82-2H3a1 1 0 0 0 0 2h.921a1.005 1.005 0 0 1 .962.725l.155.545v.005l1.641 5.742A3 3 0 0 0 7 18h12a1 1 0 0 0 0-2Zm-1.326-9l-1.22 4.274a1.005 1.005 0 0 1-.963.726H8.754l-.255-.892L7.326 7ZM16.5 19a1.5 1.5 0 1 0 1.5 1.5a1.5 1.5 0 0 0-1.5-1.5Z"/>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" id="check" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M18.71 7.21a1 1 0 0 0-1.42 0l-7.45 7.46l-3.13-3.14A1 1 0 1 0 5.29 13l3.84 3.84a1 1 0 0 0 1.42 0l8.16-8.16a1 1 0 0 0 0-1.47Z"/>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" id="trash" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M10 18a1 1 0 0 0 1-1v-6a1 1 0 0 0-2 0v6a1 1 0 0 0 1 1ZM20 6h-4V5a3 3 0 0 0-3-3h-2a3 3 0 0 0-3 3v1H4a1 1 0 0 0 0 2h1v11a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3V8h1a1 1 0 0 0 0-2ZM10 5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1h-4Zm7 14a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V8h10Zm-3-1a1 1 0 0 0 1-1v-6a1 1 0 0 0-2 0v6a1 1 0 0 0 1 1Z"/>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" id="star-outline" viewBox="0 0 15 15">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M7.5 9.804L5.337 11l.413-2.533L4 6.674l2.418-.37L7.5 4l1.082 2.304l2.418.37l-1.75 1.793L9.663 11L7.5 9.804Z"/>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" id="star-solid" viewBox="0 0 15 15">
+          <path fill="currentColor" d="M7.953 3.788a.5.5 0 0 0-.906 0L6.08 5.85l-2.154.33a.5.5 0 0 0-.283.843l1.574 1.613l-.373 2.284a.5.5 0 0 0 .736.518l1.92-1.063l1.921 1.063a.5.5 0 0 0 .736-.519l-.373-2.283l1.574-1.613a.5.5 0 0 0-.283-.844L8.921 5.85l-.968-2.062Z"/>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" id="search" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M21.71 20.29L18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 7-7a7 7 0 0 1-7 7Z"/>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" id="user" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M15.71 12.71a6 6 0 1 0-7.42 0a10 10 0 0 0-6.22 8.18a1 1 0 0 0 2 .22a8 8 0 0 1 15.9 0a1 1 0 0 0 1 .89h.11a1 1 0 0 0 .88-1.1a10 10 0 0 0-6.25-8.19ZM12 12a4 4 0 1 1 4-4a4 4 0 0 1-4 4Z"/>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" id="close" viewBox="0 0 15 15">
+          <path fill="currentColor" d="M7.953 3.788a.5.5 0 0 0-.906 0L6.08 5.85l-2.154.33a.5.5 0 0 0-.283.843l1.574 1.613l-.373 2.284a.5.5 0 0 0 .736.518l1.92-1.063l1.921 1.063a.5.5 0 0 0 .736-.519l-.373-2.283l1.574-1.613a.5.5 0 0 0-.283-.844L8.921 5.85l-.968-2.062Z"/>
+        </symbol>
+      </defs>
+    </svg>
+
+    {# 2. NAVBAR & HEADER #}
+    <header class="border-bottom bg-white sticky-top">
+      <div class="container-fluid">
+        <div class="row py-3 align-items-center">
+          <div class="col-sm-4 col-lg-3">
+            <a href="{{ path('app_index') }}">
+              <img src="{{ asset('images/logo.png') }}" alt="logo" class="img-fluid" style="max-height: 50px;">
+            </a>
+          </div>
+          
+          <div class="col-lg-5 d-none d-lg-block">
+            <div class="search-bar bg-light p-2 rounded-4 d-flex">
+                <input type="text" id="header-search-input" class="form-control border-0 bg-transparent" placeholder="Search products...">
+                <button class="btn btn-link text-dark" onclick="filterProducts()"><svg width="20" height="20"><use xlink:href="#search"></use></svg></button>
+            </div>
+          </div>
+
+          <div class="col-sm-8 col-lg-4 d-flex justify-content-end align-items-center gap-3">
+            {% if app.user and 'ROLE_ADMIN' not in app.user.roles %}
+                <button class="btn btn-white border-0 position-relative" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart">
+                    <span class="fs-6 text-muted d-block small">Your Cart</span>
+                    <span class="fw-bold" id="cart-total-header">$0.00</span>
+                </button>
+            {% endif %}
+
+            {% if app.user %}
+                <div class="dropdown">
+                    <a href="#" class="btn btn-outline-dark dropdown-toggle" data-bs-toggle="dropdown">
+                        <svg width="18" height="18" class="me-1"><use xlink:href="#user"></use></svg>
+                        {{ app.user.firstName }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ path('app_profile') }}">Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{{ path('app_logout') }}">Logout</a></li>
+                    </ul>
+                </div>
+            {% else %}
+                <a href="{{ path('app_login') }}" class="btn btn-outline-dark">Login</a>
+                <a href="{{ path('app_register') }}" class="btn btn-primary">Sign Up</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </header>
+
+    {# 3. CART OFFCANVAS #}
+    <div class="offcanvas offcanvas-end" id="offcanvasCart" tabindex="-1">
+      <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title fw-bold">Your Cart</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="list-group mb-3" id="cart-items-list">
+            {# Items will be injected here by JS #}
+        </ul>
+        <div class="d-flex justify-content-between fw-bold fs-5 mb-3">
+            <span>Total:</span>
+            <span id="cart-total-offcanvas">$0.00</span>
+        </div>
+        <button class="btn btn-primary w-100 btn-lg rounded-pill" onclick="openCheckoutModal()">Checkout</button>
+      </div>
+    </div>
+
+    {# 4. CHECKOUT MODAL #}
+    <div id="checkoutModal" class="modal-overlay" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+        <div class="modal-window bg-white p-4 rounded-4 shadow" style="max-width: 500px; width: 90%;">
+             <h4 class="fw-bold">Payment Details</h4>
+             <div id="checkout-items-list" class="mb-3"></div>
+             <input type="text" id="card-name" class="form-control mb-2" placeholder="Cardholder Name">
+             <input type="text" id="card-number" class="form-control mb-3" placeholder="Card Number">
+             <div class="d-flex gap-2">
+                 <button class="btn btn-light w-100" onclick="closeCheckoutModal()">Cancel</button>
+                 <button class="btn btn-success w-100" onclick="processOrder()">Pay Now</button>
+             </div>
+        </div>
+    </div>
+
+    {# 5. MAIN CONTENT BLOCK #}
+    <main>
+        {% block body %}
+            <section style="background-color: #ffffff; min-height: 100vh; padding: 60px 0;">
+                <div class="container">
+                    <nav aria-label="breadcrumb" class="mb-4">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{{ path('app_index') }}">Home</a></li>
+                            <li class="breadcrumb-item active">{{ product.name }}</li>
+                        </ol>
+                    </nav>
+
+                    <div class="row g-5">
+                        {# Left Side: Product Image #}
+                        <div class="col-md-6">
+                            <div class="shadow-sm rounded-4 overflow-hidden border">
+                                <img src="{{ product.imagePath ? asset('uploads/products/' ~ product.imagePath) : asset('images/placeholder.jpg') }}" 
+                                    class="img-fluid w-100" alt="{{ product.name }}">
+                            </div>
+                        </div>
+
+                        {# Right Side: Product Info #}
+                        <div class="col-md-6">
+                            <div class="ps-md-4">
+                                {% if product.category %}
+                                    <span class="badge bg-light text-primary border px-3 py-2 rounded-pill mb-3">
+                                        {{ product.category.categoryName }}
+                                    </span>
+                                {% endif %}
+                                
+                                <h1 class="display-5 fw-bold mb-3">{{ product.name }}</h1>
+                                <h2 class="text-primary fw-bold mb-4">${{ product.price|number_format(2) }}</h2>
+                                
+                                <hr class="my-4" style="opacity: 0.1;">
+                                
+                                <h5 class="fw-bold">Description</h5>
+                                <p class="text-muted lh-lg mb-4">
+                                    {{ product.description }}
+                                </p>
+
+                                <div class="d-flex gap-3 align-items-center mt-5">
+                                    {% if product.quantity > 0 %}
+                                    <button class="btn btn-primary btn-lg px-5 rounded-pill shadow"
+                                            onclick="addToCart({{ product.id }}, '{{ product.name|e('js') }}', {{ product.price }}, '{{ asset('uploads/products/' ~ product.imagePath) }}')">
+                                        <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                                    </button>
+                                        <span class="text-success small"><i class="bi bi-check-circle me-1"></i> {{ product.quantity }} in stock</span>
+                                    {% else %}
+                                        <button class="btn btn-secondary btn-lg px-5 rounded-pill" disabled>Out of Stock</button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>        
+        {% endblock %}
+    </main>
+
+    {# 6. MODERN TOAST (Added to cart pop-up) #}
+    <div id="cartToast" style="display: none; position: fixed; bottom: 20px; right: 20px; background: white; border: 1px solid #ddd; padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10000;">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-check-circle-fill text-success"></i>
+            <span id="toastMessage" class="fw-bold"></span>
+        </div>
+    </div>
+
+   
+    {# Global JavaScript for Cart #}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        var cart = JSON.parse(localStorage.getItem('my_cart')) || [];
+
+    // 2. Run on Page Load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateCartDisplay(); 
+    });
+
+    // 3. Add Function
+    function addToCart(pId, pName, pPrice, pImg) {
+        let existing = cart.find(item => item.id === pId);
+
+        if (existing) {
+            existing.quantity += 1;
+        } else {
+            cart.push({
+                id: pId,
+                name: pName,
+                price: parseFloat(pPrice),
+                image: pImg,
+                quantity: 1
+            });
+        }
+
+        localStorage.setItem('my_cart', JSON.stringify(cart));
+        updateCartDisplay();
+        
+        if (typeof showCartToast === "function") {
+            showCartToast(pName);
+        }
+    }
+
+    // 4. Update UI Function
+    function updateCartDisplay() {
+        const cartList = document.getElementById('cart-items-list');
+        const cartCount = document.getElementById('cart-count');
+        const cartTotalHeader = document.getElementById('cart-total-header');
+
+        if (!cartList) return; 
+
+        cartList.innerHTML = '';
+        let total = 0;
+
+        cart.forEach((item, index) => {
+            total += item.price * item.quantity;
+            cartList.innerHTML += `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="my-0">${item.name} (x${item.quantity})</h6>
+                        <small class="text-muted">$${item.price.toFixed(2)}</small>
+                    </div>
+                    <button class="btn btn-sm text-danger" onclick="removeFromCart(${index})">×</button>
+                </li>`;
+        });
+
+        if (cartCount) cartCount.innerText = cart.length;
+        if (cartTotalHeader) cartTotalHeader.innerText = '$' + total.toFixed(2);
+    }
+
+    // 5. Remove Function
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        localStorage.setItem('my_cart', JSON.stringify(cart));
+        updateCartDisplay();
+    }
+
+    // 6. Toast Function
+    function showCartToast(name) {
+        const toast = document.getElementById('cartToast');
+        const msg = document.getElementById('toastMessage');
+        if (toast && msg) {
+            msg.innerText = name + ' added to cart!';
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+    }
+    
+    {% block javascripts %}
+</body>
+{# In base.html.twig #}
+ {% endblock %}
+</html>

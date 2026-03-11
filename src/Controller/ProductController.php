@@ -8,11 +8,13 @@ use App\Repository\CategoryRepository;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/product')]
 final class ProductController extends AbstractController
@@ -21,8 +23,6 @@ final class ProductController extends AbstractController
     public function index(ProductRepository $repository): Response
     {
         $products = $repository->findAll();
-
-        // Optional: you can render a dedicated product page or homepage
         return $this->render('index.html.twig', [
             'products' => $products,
         ]);
@@ -30,18 +30,25 @@ final class ProductController extends AbstractController
 
     #[Route('/new', name: 'product_new', methods: ['GET','POST'])]
     #[IsGranted('ROLE_ADMIN')]
-    public function new(Request $request, EntityManagerInterface $em, ProductRepository $productRepo, CategoryRepository $categoryRepo): Response
+    public function new(Request $request, EntityManagerInterface $em, ProductRepository $productRepo, CategoryRepository $categoryRepo, SluggerInterface $slugger): Response
     {
         $product = new Product();
         $form = $this->createForm(ProductType::class, $product);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var UploadedFile $imageFile */
+            $imageFile = $form->get('image')->getData();
+
+            if ($imageFile) {
+                $this->uploadImage($imageFile, $product, $slugger);
+            }
+
             $em->persist($product);
             $em->flush();
 
             $this->addFlash('success', 'Product created.');
-
+            
             return $this->redirectToRoute('app_index');
         }
 
@@ -56,7 +63,7 @@ final class ProductController extends AbstractController
 
     #[Route('/{id}/edit', name: 'product_edit', methods: ['GET','POST'])]
     #[IsGranted('ROLE_ADMIN')]
-    public function edit(Product $product, Request $request, EntityManagerInterface $em, ProductRepository $productRepo, CategoryRepository $categoryRepo): Response
+    public function edit(Product $product, Request $request, EntityManagerInterface $em, ProductRepository $productRepo, CategoryRepository $categoryRepo, SluggerInterface $slugger): Response
     {
         $form = $this->createForm(ProductType::class, $product, [
             'action' => $this->generateUrl('product_edit', ['id' => $product->getId()]),
@@ -64,6 +71,20 @@ final class ProductController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var UploadedFile $imageFile */
+            $imageFile = $form->get('image')->getData();
+
+            if ($imageFile) {
+                // Optional: Delete old image from server before uploading new one
+                if ($product->getImagePath()) {
+                    $oldPath = $this->getParameter('products_directory').'/'.$product->getImagePath();
+                    if (file_exists($oldPath)) {
+                        unlink($oldPath);
+                    }
+                }
+                $this->uploadImage($imageFile, $product, $slugger);
+            }
+
             $em->flush();
 
             if ($request->isXmlHttpRequest()) {
@@ -91,6 +112,24 @@ final class ProductController extends AbstractController
         ]);
     }
 
+    // Helper method to keep code clean
+    private function uploadImage($imageFile, Product $product, SluggerInterface $slugger): void
+    {
+        $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeFilename = $slugger->slug($originalFilename);
+        $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+
+        try {
+            $imageFile->move(
+                $this->getParameter('products_directory'),
+                $newFilename
+            );
+            $product->setImagePath($newFilename);
+        } catch (FileException $e) {
+            $this->addFlash('danger', 'Failed to upload image.');
+        }
+    }
+
     #[Route('/search', name: 'product_search', methods: ['GET'])]
     public function search(Request $request, ProductRepository $productRepo): JsonResponse
     {
@@ -108,6 +147,7 @@ final class ProductController extends AbstractController
                 'name' => $product->getName(),
                 'price' => $product->getPrice(),
                 'category' => $product->getCategory() ? $product->getCategory()->getCategoryName() : null,
+                'image' => $product->getImagePath(), // Added to search results
             ];
         }
 
@@ -121,12 +161,27 @@ final class ProductController extends AbstractController
         $token = $request->request->get('_token');
 
         if ($this->isCsrfTokenValid('delete'.$product->getId(), $token)) {
+            // Delete image file from server when deleting product
+            if ($product->getImagePath()) {
+                $filePath = $this->getParameter('products_directory').'/'.$product->getImagePath();
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+            
             $em->remove($product);
             $em->flush();
             $this->addFlash('success', 'Product deleted.');
         }
 
-        // Redirect to homepage
         return $this->redirectToRoute('app_index');
+    }
+
+    #[Route('/product/{id}', name: 'product_show', methods: ['GET'])]
+    public function show(Product $product): Response
+    {
+        return $this->render('baseee.html.twig', [
+            'product' => $product,
+        ]);
     }
 }

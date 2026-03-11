@@ -1,6 +1,7 @@
 <?php
 namespace App\Form;
-
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Validator\Constraints\File;
 use App\Entity\Category;
 use App\Entity\Product;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -61,6 +62,23 @@ class ProductType extends AbstractType
                     'class' => 'form-select',
                 ],
             ])
+
+            ->add('image', FileType::class, [
+                'label' => 'Product Image',
+                'mapped' => false, // This is crucial: it means it's not associated with an entity property
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '2M',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                            'image/webp',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid image (JPEG, PNG, WEBP)',
+                    ])
+                ],
+            ]);
         ;
     }
 

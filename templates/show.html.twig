@@ -1,0 +1,568 @@
+{% extends 'baseee.html.twig' %}
+
+{% block body %}
+<section style="background-color: #ffffff; min-height: 100vh; padding: 60px 0;">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('app_index') }}">Home</a></li>
+                <li class="breadcrumb-item active">{{ product.name }}</li>
+            </ol>
+        </nav>
+
+        <div class="row g-5">
+            {# Left Side: Product Image #}
+            <div class="col-md-6">
+                <div class="shadow-sm rounded-4 overflow-hidden border">
+                    <img src="{{ product.imagePath ? asset('uploads/products/' ~ product.imagePath) : asset('images/placeholder.jpg') }}" 
+                         class="img-fluid w-100" alt="{{ product.name }}">
+                </div>
+            </div>
+
+            {# Right Side: Product Info #}
+            <div class="col-md-6">
+                <div class="ps-md-4">
+                    {% if product.category %}
+                        <span class="badge bg-light text-primary border px-3 py-2 rounded-pill mb-3">
+                            {{ product.category.categoryName }}
+                        </span>
+                    {% endif %}
+                    
+                    <h1 class="display-5 fw-bold mb-3">{{ product.name }}</h1>
+                    <h2 class="text-primary fw-bold mb-4">${{ product.price|number_format(2) }}</h2>
+                    
+                    <hr class="my-4" style="opacity: 0.1;">
+                    
+                    <h5 class="fw-bold">Description</h5>
+                    <p class="text-muted lh-lg mb-4">
+                        {{ product.description }}
+                    </p>
+
+                    <div class="d-flex gap-3 align-items-center mt-5">
+                        {% if product.quantity > 0 %}
+                           <button class="btn btn-primary btn-lg px-5 rounded-pill shadow"
+                                    onclick="addToCart({{ product.id }}, '{{ product.name|e('js') }}', {{ product.price }}, '{{ asset('uploads/products/' ~ product.imagePath) }}')">
+                                <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                            </button>
+                            <span class="text-success small"><i class="bi bi-check-circle me-1"></i> {{ product.quantity }} in stock</span>
+                        {% else %}
+                            <button class="btn btn-secondary btn-lg px-5 rounded-pill" disabled>Out of Stock</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<div id="cartToast" class="modern-toast" style="display: none; position: fixed; bottom: 20px; right: 20px; background: white; border: 1px solid #ddd; padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10000;">
+    <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-check-circle-fill text-success" style="font-size: 1.2rem;"></i>
+        <span id="toastMessage" class="fw-bold text-dark"></span>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block javascripts %}
+<script src="{{ asset('js/jquery-1.11.0.min.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+<script src="{{ asset('js/plugins.js') }}"></script>
+<script src="{{ asset('js/script.js') }}"></script>
+<script>
+function showError(message) {
+    const errorBox = document.getElementById('checkout-error-msg');
+    const modalWindow = document.querySelector('#checkoutModal .modal-window');
+    // Add this inside your <script> tag
+    document.addEventListener('DOMContentLoaded', function() {
+        const cardInput = document.getElementById('card-number');
+
+        if (cardInput) {
+            cardInput.addEventListener('input', function (e) {
+                // 1. Remove all non-digits
+                let value = e.target.value.replace(/\D/g, '');
+                
+                // 2. Add a space every 4 digits using Regex
+                let formattedValue = value.match(/.{1,4}/g)?.join(' ') || '';
+                
+                // 3. Limit to 19 characters (16 digits + 3 spaces)
+                e.target.value = formattedValue.substring(0, 19);
+            });
+        }
+    });
+    if (errorBox) {
+        errorBox.innerText = message;
+        errorBox.style.display = 'block';
+        
+        // Auto-hide error when user starts typing again
+        const inputs = document.querySelectorAll('#checkoutModal input');
+        inputs.forEach(input => {
+            input.addEventListener('input', () => {
+                errorBox.style.display = 'none';
+            }, { once: true });
+        });
+    }
+
+    // Trigger the shake animation
+    if (modalWindow) {
+        modalWindow.classList.add('shake');
+        setTimeout(() => {
+            modalWindow.classList.remove('shake');
+        }, 400);
+    }
+}
+
+
+
+let selectedMethod = "Visa"; 
+
+function selectCardType(method) {
+    selectedMethod = method;
+    
+    // 1. Reset all options to default (gray border, white bg)
+    document.querySelectorAll('.card-type-option').forEach(el => {
+        el.style.backgroundColor = "#ffffff";
+        el.style.borderColor = "#dee2e6";
+        el.style.color = "#6c757d"; // Muted text
+        el.classList.add('text-muted');
+    });
+
+    // 2. Highlight the selected one (Blue border, Light blue background)
+    const activeEl = document.getElementById('type-' + method.toLowerCase());
+    activeEl.style.backgroundColor = "#e7f1ff"; // Light blue tint
+    activeEl.style.borderColor = "#0d6efd";     // Bootstrap primary blue
+    activeEl.style.color = "#0d6efd";           // Blue text
+    activeEl.classList.remove('text-muted');
+}
+
+
+function closeCheckoutModal() {
+    document.getElementById('checkoutModal').style.display = 'none';
+}
+
+
+function clearCartAndFinish() {
+    // This refreshes the page to reset the cart state
+    window.location.reload(); 
+}
+</script>
+<script>
+
+
+// Updated addToCart with Pop-out
+
+function filterProducts() {
+  var categoryVal = (document.getElementById('product-category-filter') || {}).value || '';
+  var searchVal = (document.getElementById('product-filter-input') || document.getElementById('header-search-input') || {}).value || '';
+  searchVal = searchVal.trim().toLowerCase();
+
+  document.querySelectorAll('.product-card').forEach(function(card) {
+    var name = card.getAttribute('data-product-name') || '';
+    var cat  = card.getAttribute('data-category-name') || '';
+    var matchCat    = !categoryVal || cat === categoryVal.toLowerCase();
+    var matchSearch = !searchVal  || name.indexOf(searchVal) !== -1 || cat.indexOf(searchVal) !== -1;
+    card.style.display = (matchCat && matchSearch) ? '' : 'none';
+  });
+
+  document.querySelectorAll('.category-card').forEach(function(card) {
+    var cat = card.getAttribute('data-category-name') || '';
+    card.style.display = (!searchVal || cat.indexOf(searchVal) !== -1) ? '' : 'none';
+  });
+}
+
+(function() {
+  // All filter inputs share the same filterProducts function
+  ['product-category-filter', 'category-filter', 'header-category-filter'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('change', function() {
+        // Sync all category dropdowns to same value
+        ['product-category-filter', 'category-filter', 'header-category-filter'].forEach(function(syncId) {
+          var s = document.getElementById(syncId);
+          if (s) s.value = el.value;
+        });
+        filterProducts();
+      });
+    }
+  });
+
+  ['product-filter-input', 'header-search-input'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', filterProducts);
+  });
+})();
+
+function openEditModal(url) {
+  var modal = document.getElementById('editModal');
+  var content = document.getElementById('editModalContent');
+  content.innerHTML = '<div class="p-4 text-center">Loading...</div>';
+  modal.style.display = 'flex';
+
+  fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+    .then(function(r) { return r.text(); })
+    .then(function(html) {
+      content.innerHTML = html;
+      bindEditForm();
+    });
+}
+
+function bindEditForm() {
+  var content = document.getElementById('editModalContent');
+  var form = content.querySelector('.edit-modal-form');
+  if (!form) return;
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var formData = new FormData(form);
+    fetch(form.action, {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      body: formData
+    }).then(function(r) {
+      if (r.headers.get('content-type') && r.headers.get('content-type').indexOf('application/json') !== -1) {
+        return r.json().then(function(data) {
+          if (data.success) {
+            closeEditModal();
+            location.reload();
+          }
+        });
+      } else {
+        return r.text().then(function(html) {
+          content.innerHTML = html;
+          bindEditForm();
+        });
+      }
+    });
+  });
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').style.display = 'none';
+  document.getElementById('editModalContent').innerHTML = '';
+}
+
+function closeCategoryModal() {
+  document.getElementById('categoryModal').style.display = 'none';
+  // Reset to the original header for next add
+  document.getElementById('categoryModalHeader').innerHTML = '<div><h4 class="fw-bold mb-1">Create New Category</h4><p class="text-muted small mb-0">Add a new product category</p></div><button type="button" class="btn-close" aria-label="Close" onclick="closeCategoryModal()"></button>';
+}
+
+function openEditCategoryModal(categoryId) {
+  var modal = document.getElementById('categoryEditModal');
+  var content = document.getElementById('categoryEditModalContent');
+  content.innerHTML = '<div class="p-4 text-center">Loading...</div>';
+  modal.style.display = 'flex';
+
+  fetch('{{ path("category_edit", {"id": "__ID__"}) }}'.replace('__ID__', categoryId), { 
+    headers: { 'X-Requested-With': 'XMLHttpRequest' } 
+  })
+    .then(function(r) { return r.text(); })
+    .then(function(html) {
+      content.innerHTML = html;
+      bindCategoryEditForm();
+    })
+    .catch(function(e) {
+      content.innerHTML = '<div class="p-4"><div class="alert alert-danger">Error loading form. Please try again.</div><button type="button" class="btn btn-secondary" onclick="closeCategoryEditModal()">Close</button></div>';
+    });
+}
+
+function closeCategoryEditModal() {
+  document.getElementById('categoryEditModal').style.display = 'none';
+  document.getElementById('categoryEditModalContent').innerHTML = '';
+}
+
+function bindCategoryEditForm() {
+  var content = document.getElementById('categoryEditModalContent');
+  var form = content.querySelector('.category-edit-form');
+  if (!form) return;
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var formData = new FormData(form);
+    fetch(form.action, {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      body: formData
+    }).then(function(r) {
+      if (r.ok) {
+        closeCategoryEditModal();
+        location.reload();
+      } else {
+        return r.text().then(function(html) {
+          content.innerHTML = html;
+          bindCategoryEditForm();
+        });
+      }
+    });
+  });
+}
+
+// ============================================
+// CART AND PRODUCT FILTERING FOR NON-ADMIN USERS
+// ============================================
+
+
+function updateCartDisplay() {
+  var total = cart.reduce(function(sum, item) { return sum + item.price * item.quantity; }, 0);
+  var count = cart.reduce(function(sum, item) { return sum + item.quantity; }, 0);
+  
+  var badge = document.getElementById('cart-count');
+  if (badge) badge.textContent = count;
+
+  var headerTotal = document.getElementById('cart-total-header');
+  if (headerTotal) headerTotal.textContent = '$' + total.toFixed(2);
+
+  var offcanvasTotal = document.getElementById('cart-total-offcanvas');
+  if (offcanvasTotal) offcanvasTotal.textContent = '$' + total.toFixed(2);
+
+  var cartList = document.getElementById('cart-items-list');
+  if (cartList) {
+    cartList.innerHTML = '';
+    cart.forEach(function(item) {
+      var li = document.createElement('li');
+      li.className = 'list-group-item';
+      li.innerHTML = `
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <img src="${item.image}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;" alt="">
+            <div class="flex-grow-1">
+                <h6 class="my-0 small fw-bold">${item.name}</h6>
+                <small class="text-body-secondary">$${item.price.toFixed(2)}</small>
+            </div>
+            <button type="button" class="btn-close" style="font-size: 0.7rem" onclick="removeFromCart(${item.id})"></button>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-sm btn-outline-secondary py-0" onclick="updateQuantity(${item.id}, -1)">-</button>
+                <span class="btn btn-sm btn-light py-0" disabled>${item.quantity}</span>
+                <button type="button" class="btn btn-sm btn-outline-secondary py-0" onclick="updateQuantity(${item.id}, 1)">+</button>
+            </div>
+            <span class="text-body-secondary small fw-bold">$${(item.price * item.quantity).toFixed(2)}</span>
+        </div>`;
+      cartList.appendChild(li);
+    });
+    var totalLi = document.createElement('li');
+    totalLi.className = 'list-group-item d-flex justify-content-between';
+    totalLi.innerHTML = '<span>Total (USD)</span><strong>$' + total.toFixed(2) + '</strong>';
+    cartList.appendChild(totalLi);
+  }
+}
+
+function removeFromCart(productId) {
+  cart = cart.filter(function(item) { return item.id !== productId; });
+  updateCartDisplay();
+}
+
+function updateQuantity(productId, change) {
+  var item = cart.find(function(i) { return i.id === productId; });
+  if (item) {
+    item.quantity += change;
+    if (item.quantity <= 0) {
+      removeFromCart(productId);
+    } else {
+      updateCartDisplay();
+    }
+  }
+}
+
+function showNotification(message) {
+  var notification = document.createElement('div');
+  notification.className = 'alert alert-success position-fixed bottom-0 end-0 m-3';
+  notification.style.zIndex = '9999';
+  notification.innerHTML = '<small>' + message + '</small>';
+  document.body.appendChild(notification);
+  setTimeout(function() {
+    notification.remove();
+  }, 2500);
+}
+
+function openCheckoutModal() {
+    if (cart.length === 0) {
+        alert('Your cart is empty!');
+        return;
+    }
+
+    // FIX: Force-close the side cart so it doesn't block inputs
+    const cartOffcanvasEl = document.getElementById('offcanvasCart');
+    if (cartOffcanvasEl) {
+        const instance = bootstrap.Offcanvas.getInstance(cartOffcanvasEl) || new bootstrap.Offcanvas(cartOffcanvasEl);
+        instance.hide();
+    }
+
+    // Rebuild Summary...
+    const checkoutList = document.getElementById('checkout-items-list');
+    checkoutList.innerHTML = '';
+    let total = 0;
+    cart.forEach(item => {
+        total += item.price * item.quantity;
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between border-0 px-0 small';
+        li.innerHTML = `
+          <div class="d-flex align-items-center">
+              <img src="${item.image}" style="width: 30px; height: 30px; object-fit: cover; margin-right: 10px;">
+              <span>${item.name} x${item.quantity}</span>
+          </div>
+          <strong>$${(item.price * item.quantity).toFixed(2)}</strong>`;
+      checkoutList.appendChild(li);
+    });
+    document.getElementById('checkout-total').innerText = '$' + total.toFixed(2);
+
+    // Show Checkout Modal
+    document.getElementById('checkoutModal').style.display = 'flex';
+    console.log("Checkout Modal opened.");
+
+    setTimeout(() => { document.getElementById('card-name').focus(); }, 400);
+}
+
+function processOrder() {
+    const nameInput = document.getElementById('card-name').value;
+    const cardInput = document.getElementById('card-number').value;
+    const totalValue = document.getElementById('checkout-total').innerText;
+
+    if (nameInput.trim() === "" || (selectedMethod !== 'PayPal' && cardInput.length < 16)) {
+        showError("⚠️ Please check your payment details.");
+        return;
+    }
+
+    // Populate Receipt data
+    try {
+        document.getElementById('display-card-name').innerText = nameInput;
+        document.getElementById('display-total-paid').innerText = document.getElementById('checkout-total').innerText;
+        document.getElementById('display-date').innerText = new Date().toLocaleString();
+        
+        const cardNum = document.getElementById('card-number').value;
+        document.getElementById('display-card-number').innerText = "**** **** **** " + cardNum.slice(-4);
+    } catch (e) {
+        console.error("Error filling receipt:", e);
+    }
+    // 3. SWITCH VISIBILITY (The critical part)
+    // Hide checkout
+    document.getElementById('checkoutModal').style.display = 'none';
+    
+    // Show success with forced inline styles to ensure it's on top
+    const successMdl = document.getElementById('successOrderModal');
+    successMdl.style.cssText = "display: flex !important; position: fixed !important; z-index: 9999 !important; align-items: center; justify-content: center; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8);";
+
+    // 4. RESET THE DATA IMMEDIATELY
+    // This ensures that even if they click 'Cancel' or 'Back', the cart is gone
+    cart = []; 
+    if (typeof updateCartDisplay === "function") {
+        updateCartDisplay();
+    }
+
+    console.log("Success Modal forced to flex and cart cleared.");
+    
+}
+
+
+
+
+function showError(message) {
+    const errorBox = document.getElementById('checkout-error-msg');
+    errorBox.innerText = message;
+    errorBox.style.display = 'block';
+    
+    // Optional: Shake the modal
+    const win = document.querySelector('.modal-window');
+    win.style.transform = 'translateX(10px)';
+    setTimeout(() => win.style.transform = 'translateX(-10px)', 100);
+    setTimeout(() => win.style.transform = 'translateX(0)', 200);
+}
+function closeCheckoutModal() {
+  document.getElementById('checkoutModal').style.display = 'none';
+}
+
+function placeOrder() {
+  if (cart.length === 0) {
+    showNotification('Cart is empty!');
+    return;
+  }
+  
+  var total = cart.reduce(function(sum, item) { return sum + item.price * item.quantity; }, 0);
+  alert('Order placed successfully!\n\nTotal: $' + total.toFixed(2) + '\n\nThank you for your purchase!');
+  
+  closeCheckoutModal();
+  cart = [];
+  updateCartDisplay();
+}
+
+function filterProducts() {
+  var categoryVal = (document.getElementById('product-category-filter') || {}).value || '';
+  var searchVal = (document.getElementById('product-filter-input') || document.getElementById('header-search-input') || {}).value || '';
+  searchVal = searchVal.trim().toLowerCase();
+
+  document.querySelectorAll('.product-card').forEach(function(card) {
+    var name = card.getAttribute('data-product-name') || '';
+    var cat  = card.getAttribute('data-category-name') || '';
+    var matchCat    = !categoryVal || cat === categoryVal.toLowerCase();
+    var matchSearch = !searchVal  || name.indexOf(searchVal) !== -1 || cat.indexOf(searchVal) !== -1;
+    card.style.display = (matchCat && matchSearch) ? '' : 'none';
+  });
+
+  document.querySelectorAll('.category-card').forEach(function(card) {
+    var cat = card.getAttribute('data-category-name') || '';
+    card.style.display = (!searchVal || cat.indexOf(searchVal) !== -1) ? '' : 'none';
+  });
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+  updateCartDisplay();
+
+  // All filter inputs share the same filterProducts function
+  ['product-category-filter', 'category-filter', 'header-category-filter'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('change', function() {
+        // Sync all category dropdowns to same value
+        ['product-category-filter', 'category-filter', 'header-category-filter'].forEach(function(syncId) {
+          var s = document.getElementById(syncId);
+          if (s) s.value = el.value;
+        });
+        filterProducts();
+      });
+    }
+  });
+
+  ['product-filter-input', 'header-search-input'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', filterProducts);
+  });
+});
+</script>
+
+{# Footer #}
+<footer class="bg-dark text-light py-5">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-4 mb-4">
+        <h5>About FoodMart</h5>
+        <p>FoodMart is your premier online grocery store offering fresh, quality products delivered straight to your door. Shop with confidence and enjoy the convenience of online grocery shopping.</p>
+      </div>
+      <div class="col-md-4 mb-4">
+        <h5>Quick Links</h5>
+        <ul class="list-unstyled">
+          <li><a href="#" class="text-light">Home</a></li>
+          <li><a href="#" class="text-light">Shop</a></li>
+          <li><a href="#" class="text-light">About Us</a></li>
+          <li><a href="#" class="text-light">Contact</a></li>
+          <li><a href="#" class="text-light">Privacy Policy</a></li>
+        </ul>
+      </div>
+      <div class="col-md-4 mb-4">
+        <h5>Contact Us</h5>
+        <p><strong>Email:</strong> <a href="mailto:info@foodmart.com" class="text-light">info@foodmart.com</a></p>
+        <p><strong>Phone:</strong> <a href="tel:+1234567890" class="text-light">+1 (234) 567-890</a></p>
+        <p><strong>Address:</strong> 123 Market Street, Food City, FC 12345</p>
+        <p><strong>Hours:</strong> Mon - Sun: 8:00 AM - 10:00 PM</p>
+      </div>
+    </div>
+    <hr class="bg-light">
+    <div class="row">
+      <div class="col-12 text-center">
+        <p>&copy; 2026 FoodMart. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+{% endblock %}
+
