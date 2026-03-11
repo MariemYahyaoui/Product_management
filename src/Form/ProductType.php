@@ -9,6 +9,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -40,6 +41,15 @@ class ProductType extends AbstractType
                 'attr' => [
                     'class' => 'form-control',
                     'placeholder' => 'Enter product price'
+                ]
+            ])
+
+            ->add('quantity', IntegerType::class, [
+                'label' => 'Quantity in Stock',
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Enter quantity',
+                    'min' => 0
                 ]
             ])
 
