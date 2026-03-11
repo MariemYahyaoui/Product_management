@@ -18,11 +18,13 @@ A professional web application built with **Symfony ** for managing a product ca
 ## 📸 Screenshots
 
 ### 1. Product Dashboard
-![Main Index](<img width="1657" height="878" alt="image" src="https://github.com/user-attachments/assets/4bafa4f3-79ee-4f54-b410-c6cfbf5ec339" />)
+![Main Index]
+<img width="1657" height="878" alt="image" src="https://github.com/user-attachments/assets/4bafa4f3-79ee-4f54-b410-c6cfbf5ec339" />
 *The main view accessible to all users.*
 
 ### 2. Admin - Product Management
-![Admin Modal](<img width="1661" height="876" alt="image" src="https://github.com/user-attachments/assets/0a7b3506-5fbc-4b48-b35b-66ed2812485d" />)
+![Admin Modal](<img width="1661" height="875" alt="image" src="https://github.com/user-attachments/assets/1f0a1f97-b01f-47c0-a649-d5551d9a2259" />
+)
 <img width="1637" height="800" alt="image" src="https://github.com/user-attachments/assets/934cbfdf-fcc8-40f8-ab0a-36c6da8294ab" />
 <img width="1206" height="840" alt="image" src="https://github.com/user-attachments/assets/b6176c04-97f7-451e-9552-8a6a74935efa" /> 
 <img width="936" height="693" alt="image" src="https://github.com/user-attachments/assets/f519b0e0-0455-4983-a62a-c3b012fe5b78" />
@@ -60,5 +62,5 @@ The application uses a **Role-Based Access Control (RBAC)** system:
 ### Setup Steps
 1. **Clone the project:**
    ```bash
-   git clone [https://github.com/.......)
+   git clone [[https://github.com/.......](https://github.com/MariemYahyaoui/Product_management.git))
    cd product_management
