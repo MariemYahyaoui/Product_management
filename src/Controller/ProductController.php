@@ -20,11 +20,14 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 final class ProductController extends AbstractController
 {
     #[Route('/', name: 'product_index', methods: ['GET'])]
-    public function index(ProductRepository $repository): Response
+    public function index(Request $request, ProductRepository $repository): Response
     {
         $products = $repository->findAll();
+
+        // Optional: you can render a dedicated product page or homepage
         return $this->render('index.html.twig', [
             'products' => $products,
+            'search' => $search,
         ]);
     }
 

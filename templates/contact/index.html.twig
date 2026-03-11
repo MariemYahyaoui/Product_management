@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contact Us{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1 class="mb-4">Contact Us</h1>
+
+            {% for flash_message in app.flashes('success') %}
+                <div class="alert alert-success">
+                    {{ flash_message }}
+                </div>
+            {% endfor %}
+
+            {{ form_start(contactForm) }}
+                <div class="mb-3">
+                    {{ form_label(contactForm.name) }}
+                    {{ form_widget(contactForm.name) }}
+                    {{ form_errors(contactForm.name) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(contactForm.email) }}
+                    {{ form_widget(contactForm.email) }}
+                    {{ form_errors(contactForm.email) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(contactForm.message) }}
+                    {{ form_widget(contactForm.message) }}
+                    {{ form_errors(contactForm.message) }}
+                </div>
+
+                {{ form_widget(contactForm.send) }}
+            {{ form_end(contactForm) }}
+        </div>
+    </div>
+</div>
+{% endblock %}
